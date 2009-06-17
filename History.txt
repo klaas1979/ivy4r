@@ -1,0 +1,5 @@
+=== 0.9.0 / 2009-06-17
+
+* initial release
+  * support for nealry all basic IVY Ant targets
+  * basic validation of parameters
