@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://www.ivyrep.org/ivy-doc.xsl"?>
+<ivy-module version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://incubator.apache.org/ivy/schemas/ivy.xsd">
+
+    <info organisation="blau" module="testmodule" revision="2.20.0" />
+
+    <configurations defaultconfmapping="client">
+        <conf name="deploy" description="Contains the deployable artifacts for the Project." />
+        <conf name="reports" description="Contains all buildreports for the Project." />
+        <conf name="basic" visibility="private" description="Basic dependencies needed for all configurations."/>
+        <conf name="test" extends="basic" visibility="private" description="Only needed for testing of project."/>
+    </configurations>
+
+    <dependencies>
+        <dependency org="oro" name="oro" rev="2.0.8" conf="*->default" />
+    </dependencies>
+</ivy-module>
