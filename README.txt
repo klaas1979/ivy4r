@@ -45,7 +45,16 @@ Supports most standard Ivy Ant targets via Antwrap.
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  To init a new Ivy4r instance set the ANT_HOME and the Ivy lib dir
+  <tt>
+    ivy4r = Ivy4r.new
+    ivy4r.ant_home = 'PATH TO YOUR ANTHME'
+    ivy4r.lib_dir = 'PATH TO IVY LIB DIR'
+  </tt>
+  as an alternative to setting the ANT_HOME you can set an +Antwrap+ instance directly:
+  <tt>
+    ivy4r.ant = Buildr.ant('ivy')
+  </tt>
 
 == REQUIREMENTS:
 
