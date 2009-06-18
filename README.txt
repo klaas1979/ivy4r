@@ -1,11 +1,13 @@
 = ivy4r
 
 * http://github.com/klaas1979/ivy4r/tree/master
+* http://ivy4r.rubyforge.org/
 
 == DESCRIPTION:
 
-Apache Ivy dependency manager wrapper for ruby (see http://ant.apache.org/ivy/index.html for more information).Use Ivy via a ruby wrapper without the need to use Apache Ant.
-The wrapper uses Antwrap (see http://antwrap.rubyforge.org/) to interface with Ivy.
+Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
+Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
+The wrapper uses Antwrap[http://antwrap.rubyforge.org/] to interface with Ivy.
 
 == FEATURES/PROBLEMS:
 
@@ -46,19 +48,15 @@ Supports most standard Ivy Ant targets via Antwrap.
 == SYNOPSIS:
 
   To init a new Ivy4r instance set the ANT_HOME and the Ivy lib dir
-  <tt>
     ivy4r = Ivy4r.new
     ivy4r.ant_home = 'PATH TO YOUR ANTHME'
     ivy4r.lib_dir = 'PATH TO IVY LIB DIR'
-  </tt>
   as an alternative to setting the ANT_HOME you can set an +Antwrap+ instance directly:
-  <tt>
     ivy4r.ant = Buildr.ant('ivy')
-  </tt>
 
 == REQUIREMENTS:
 
-* Installed Apache Ant, to call Ivy via Antwrap.
+* Installed Apache Ant, to call Ivy via Antwrap
 * Ivy and dependencies in a single directory. Dependencies depends on used features, see the ivy homepage for more information.
 
 == INSTALL:

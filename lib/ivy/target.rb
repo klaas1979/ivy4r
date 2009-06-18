@@ -2,19 +2,7 @@ require 'facets'
 
 module Ivy
 
-  COMMA_SPLITTER = Proc.new {|value| value.to_s.split(',').map(&:strip)}
-
-  Parameter = Struct.new(:symbol, :mandatory) do
-    def mandatory?
-      mandatory
-    end
-  end
-
-  ResultValue = Struct.new(:matcher, :parser) do
-    def parse(value)
-      parser ? parser.call(value) : value
-    end
-  end
+  # Base class with general logic to call a Ivy ant target
   class Target
     attr_reader :params
 
@@ -22,11 +10,16 @@ module Ivy
       @ant = ant
     end
 
-    # Executes this ivy target with given parameters returning a result where appropriate
+    # Executes this ivy target with given parameters returning a result.
+    # __params__ can be a single Hash or an Array with or without a Hash as last value.
+    # every value in array will be converted to string and set to __true__.
+    # 
+    # I.e. <tt>[:force, 'validate', {'name' => 'Blub'}]</tt>
+    # results in parameters <tt>{'force'=>true, 'validate' => true, 'name'=>'Blub'}</tt>
     def execute(*params)
       @params = {}
       params.pop.each { |key, value| @params[key] = value } if Hash === params.last
-      params.each { |key| @params[key] = true }
+      params.each { |key| @params[key.to_s] = true }
 
       validate
       before_hook
@@ -118,5 +111,18 @@ module Ivy
       @ant.project.references
     end
   end
-  
+
+    COMMA_SPLITTER = Proc.new {|value| value.to_s.split(',').map(&:strip)}
+
+  Parameter = Struct.new(:symbol, :mandatory) do
+    def mandatory?
+      mandatory
+    end
+  end
+
+  ResultValue = Struct.new(:matcher, :parser) do
+    def parse(value)
+      parser ? parser.call(value) : value
+    end
+  end
 end
