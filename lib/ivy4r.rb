@@ -2,7 +2,7 @@ require 'antwrap'
 require 'ivy/targets'
 
 class Ivy4r
-  VERSION = '0.1.0'
+  VERSION = '0.2.0'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   attr_accessor :ant_home

@@ -9,6 +9,9 @@ Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apac
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
 The wrapper uses Antwrap[http://antwrap.rubyforge.org/] to interface with Ivy.
 
+Includes a Extension for Buildr[http://buildr.apache.org/] to use {Apache Ivy}[http://ant.apache.org/ivy/index.html]
+for dependency management.
+
 == FEATURES/PROBLEMS:
 
 Supports most standard Ivy Ant targets via Antwrap.

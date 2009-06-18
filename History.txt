@@ -1,5 +1,12 @@
+=== 0.2.0 / 2009-06-18
+
+* added the Buildr ivy_extension to include ivy in buildr for dependency managment
+* small improvements in documentation
+
+
 === 0.1.0 / 2009-06-17
 
 * initial release
   * support for nearly all basic IVY Ant targets
   * basic validation of parameters
+

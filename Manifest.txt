@@ -2,6 +2,8 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+bin/ivy4r
+lib/buildr/ivy_extension.rb
 lib/ivy/artifactproperty.rb
 lib/ivy/artifactreport.rb
 lib/ivy/buildlist.rb
@@ -32,4 +34,3 @@ test/ivy/ivytest.xml
 test/ivy/test_target.rb
 test/ivy/test_targets.rb
 test/test_ivy4r.rb
-

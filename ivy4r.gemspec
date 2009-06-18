@@ -2,14 +2,18 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ivy4r}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
-  s.date = %q{2009-06-17}
+  s.date = %q{2009-06-18}
   s.default_executable = %q{ivy4r}
-  s.description = %q{Apache Ivy dependency manager wrapper for ruby (see http://ant.apache.org/ivy/index.html for more information).Use Ivy via a ruby wrapper without the need to use Apache Ant.
-The wrapper uses Antwrap (see http://antwrap.rubyforge.org/) to interface with Ivy.}
+  s.description = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
+Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
+The wrapper uses Antwrap[http://antwrap.rubyforge.org/] to interface with Ivy.
+
+Includes a Extension for Buildr[http://buildr.apache.org/] to use {Apache Ivy}[http://ant.apache.org/ivy/index.html]
+for dependency management.}
   s.email = ["klaas.prause@googlemail.com"]
   s.executables = ["ivy4r"]
   s.extra_rdoc_files = [
@@ -22,6 +26,8 @@ The wrapper uses Antwrap (see http://antwrap.rubyforge.org/) to interface with I
      "Manifest.txt",
      "README.txt",
      "Rakefile",
+     "bin/ivy4r",
+     "lib/buildr/ivy_extension.rb",
      "lib/ivy/artifactproperty.rb",
      "lib/ivy/artifactreport.rb",
      "lib/ivy/buildlist.rb",
@@ -59,7 +65,7 @@ The wrapper uses Antwrap (see http://antwrap.rubyforge.org/) to interface with I
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{ivy4r}
   s.rubygems_version = %q{1.3.2}
-  s.summary = %q{Apache Ivy dependency manager wrapper for ruby (see http://ant.apache.org/ivy/index.html for more information).Use Ivy via a ruby wrapper without the need to use Apache Ant}
+  s.summary = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information)}
   s.test_files = [
     "test/test_ivy4r.rb",
      "test/ivy/test_target.rb",
