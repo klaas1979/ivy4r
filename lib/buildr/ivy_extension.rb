@@ -369,7 +369,26 @@ module Buildr
       end
     end
 
-    # The Ivy Buildr extension adding the new tasks for ivy.
+=begin rdoc
+The Ivy Buildr extension adding the new tasks for ivy.
+
+To use ivy in a +buildfile+ do something like:
+  ENV['BUILDR_EXT_DIR'] ||= '../Ivy'
+  require 'buildr/ivy_extension'
+    define 'ivy_project' do
+    [...]
+    ivy.compile_conf('compile').test_conf('test').package_conf('prod', 'server')
+    [...]
+  end
+
+- This will add the +compile+ configuration to compile and test tasks
+- Add the +test+ configuration to test compilation and execution
+- include the artifacts from +prod+ and +server+ to any generated war or ear
+- The ENV variable is needed to automatically configure the load path for ivy libs.
+  It assumes that you have the following dir structure <tt>[BUILDR_EXT_DIR]/ivy-home/jars</tt>
+
+For more configuration options see IvyConfig.
+=end
     module IvyExtension
       include Buildr::Extension
 

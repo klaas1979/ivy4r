@@ -78,13 +78,13 @@ for dependency management.}
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<Antwrap>, [">= 0.7.0"])
-      s.add_development_dependency(%q<hoe>, [">= 2.1.0"])
+      s.add_development_dependency(%q<hoe>, [">= 2.2.0"])
     else
       s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
-      s.add_dependency(%q<hoe>, [">= 2.1.0"])
+      s.add_dependency(%q<hoe>, [">= 2.2.0"])
     end
   else
     s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
-    s.add_dependency(%q<hoe>, [">= 2.1.0"])
+    s.add_dependency(%q<hoe>, [">= 2.2.0"])
   end
 end
