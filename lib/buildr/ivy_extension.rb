@@ -64,7 +64,7 @@ module Buildr
         @ant
       end
 
-      # Returns name of publish target to use for this project
+      # Returns name of the project the ivy file belongs to.
       def file_project
         own_file? ? @project : @base_ivy.file_project
       end
