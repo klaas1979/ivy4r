@@ -1,10 +1,43 @@
 require 'antwrap'
 require 'ivy/targets'
 
+=begin rdoc
+Simple wrapper that maps the ant ivy targets one to one to ruby. See the {Apache Ivy}[http://ant.apache.org/ivy/index.html]
+for more informations about the parameters for a call. All ivy ant targets have the equivalent
+name in this class.
+
+The standard parameters are provided as Hash, i.e.:
+  <ivy:configure file="settings.xml" settingsId="my.id" />
+is
+  ivy4r.configure :file => "settings.xml", :settingsId => 'my.id'
+
+You can use nested options via the nested attribute:
+  <ivy:buildlist reference="testpath">
+    <fileset dir="target/p1" includes="buildfile" />
+  </ivy:buildlist>
+is
+  @ivy4r.buildlist :reference => 'testpath', :nested => {
+    :fileset => {:dir => 'target/p1', :includes => 'buildfile'}
+  }
+
+you can nest more than on element of the same type using an array:
+  <ivy:buildlist reference="testpath">
+    <fileset dir="target/sub" includes="**/buildfile" />
+    <fileset dir="target/p1" includes="buildfile" />
+  </ivy:buildlist>
+is
+  @ivy4r.buildlist :reference => 'testpath', :nested => {
+    :fileset => [
+      {:dir => 'target/sub', :includes => '**/buildfile'},
+      {:dir => 'target/p1', :includes => 'buildfile'}
+    ]
+  }
+=end
 class Ivy4r
   VERSION = '0.2.0'
 
-  # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
+  # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided.
+  # Must be set before any call to method that uses the ivy is made.
   attr_accessor :ant_home
 
   # Defines the directory to load ivy libs and its dependencies from
@@ -105,9 +138,9 @@ class Ivy4r
     Ivy::Report.new(ant).execute(*params)
   end
 
-  # Used to get or set an ant properties
+  # Used to get or set ant properties.
   # [set] <tt>property['name'] = value</tt> sets the ant property with name to given value no overwrite
-  # [get] <tt>property[matcher]/tt> gets property that is equal via case equality operator (+===+)
+  # [get] <tt>property[matcher]</tt> gets property that is equal via case equality operator (<tt>===</tt>)
   def property
     AntPropertyHelper.new(ant_properties)
   end
@@ -115,8 +148,8 @@ class Ivy4r
   # Returns the __antwrap__ instance to use for all internal calls creates a default
   # instance if no instance has been set before.
   def ant
-    @ant ||= ::Antwrap::AntProject.new(:ant_home => ant_home, :name => "ivy-ant",
-      :basedir => Dir.pwd, :declarative => true)
+    @ant ||= ::Antwrap::AntProject.new(:ant_home => ant_home || File.expand_path(File.join(File.dirname(__FILE__), '..', 'jars')),
+      :name => "ivy-ant", :basedir => Dir.pwd, :declarative => true)
     init(@ant) if should_init?
     @ant
   end

@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
-  s.date = %q{2009-06-18}
+  s.date = %q{2009-06-19}
   s.default_executable = %q{ivy4r}
   s.description = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
@@ -27,6 +27,9 @@ for dependency management.}
      "README.txt",
      "Rakefile",
      "bin/ivy4r",
+     "jars/lib/ant-1.7.1.jar",
+     "jars/lib/ant-launcher-1.7.1.jar",
+     "jars/lib/ant-trax-1.7.1.jar",
      "lib/buildr/ivy_extension.rb",
      "lib/ivy/artifactproperty.rb",
      "lib/ivy/artifactreport.rb",

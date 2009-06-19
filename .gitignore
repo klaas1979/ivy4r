@@ -4,4 +4,4 @@ doc
 *~
 nbproject
 pkg
-jars
+jars/*.jar
