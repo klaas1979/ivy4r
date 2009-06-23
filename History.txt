@@ -1,3 +1,11 @@
+=== 0.4.0 / 2009-06-23
+
+* added rake/ivy_extension similar to buildr/ivy_extension to help use ivy4r in rake
+
+=== 0.3.0 / 2009-06-20
+
+* added ant*.jar to gem so that user does not need to have a local ant installation
+
 === 0.2.0 / 2009-06-18
 
 * added the Buildr ivy_extension to include ivy in buildr for dependency managment
