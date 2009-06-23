@@ -3,9 +3,6 @@ Manifest.txt
 README.txt
 Rakefile
 bin/ivy4r
-jars/lib/ant-1.7.1.jar
-jars/lib/ant-launcher-1.7.1.jar
-jars/lib/ant-trax-1.7.1.jar
 lib/buildr/ivy_extension.rb
 lib/ivy/artifactproperty.rb
 lib/ivy/artifactreport.rb

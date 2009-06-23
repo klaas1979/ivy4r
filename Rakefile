@@ -4,12 +4,13 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'rubygems'
 require 'hoe'
 require 'ivy4r'
-
+  
 hoe = Hoe.spec 'ivy4r' do |p|
   # self.rubyforge_name = 'ivy4rx' # if different than 'ivy4r'
   p.developer('Klaas Prause', 'klaas.prause@googlemail.com')
   p.remote_rdoc_dir = '' # Release to root only one project
-  p.extra_deps = [['Antwrap', '>=0.7.0']]
+  p.extra_deps << ['Antwrap', '>=0.7.0']
+  p.extra_deps << ['ivy4r-jars', '>=1.0.0']
   File.open(File.join(File.dirname(__FILE__), 'VERSION'), 'w') do |file|
     file.puts Ivy4r::VERSION
   end

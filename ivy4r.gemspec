@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ivy4r}
-  s.version = "0.4.0"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
@@ -27,9 +27,6 @@ for dependency management.}
      "README.txt",
      "Rakefile",
      "bin/ivy4r",
-     "jars/lib/ant-1.7.1.jar",
-     "jars/lib/ant-launcher-1.7.1.jar",
-     "jars/lib/ant-trax-1.7.1.jar",
      "lib/buildr/ivy_extension.rb",
      "lib/ivy/artifactproperty.rb",
      "lib/ivy/artifactreport.rb",
@@ -81,13 +78,16 @@ for dependency management.}
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<Antwrap>, [">= 0.7.0"])
+      s.add_runtime_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
       s.add_development_dependency(%q<hoe>, [">= 2.2.0"])
     else
       s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
+      s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
       s.add_dependency(%q<hoe>, [">= 2.2.0"])
     end
   else
     s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
+    s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
     s.add_dependency(%q<hoe>, [">= 2.2.0"])
   end
 end

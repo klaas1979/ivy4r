@@ -1,3 +1,4 @@
+require 'ivy4r_jars'
 require 'antwrap'
 require 'ivy/targets'
 
@@ -34,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.4.0'
+  VERSION = '0.5.0'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -44,14 +45,20 @@ class Ivy4r
   # Defines the directory to load ivy libs and its dependencies from
   attr_accessor :lib_dir
 
+  # Optional ant variable <tt>ivy.project.dir</tt> to add to ant environment before loading ivy
+  # defaults to the __lib_dir__
   attr_accessor :project_dir
 
   # To provide a custom __antwrap__ to use instead of default one
   attr_writer :ant
 
-  def initialize(*opts)
-    @ant = opts[0] if opts.size == 1
-    raise "To many parameters to create Ivy4r use none, or 1 to set ANT!" if opts.size > 1
+  # Initalizes ivy4r with optional ant wrapper object. Sets ant home dir and ivy lib dir
+  # to default values from __Ivy4rJars__ gem.
+  def initialize(ant = nil)
+    @ant_home = ::Ivy4rJars.ant_home_dir
+    @lib_dir = ::Ivy4rJars.lib_dir
+    @project_dir = @lib_dir
+    @ant = ant
   end
 
   # Calls the __cleancache__ ivy target with given parameters.
@@ -149,7 +156,7 @@ class Ivy4r
   # Returns the __antwrap__ instance to use for all internal calls creates a default
   # instance if no instance has been set before.
   def ant
-    @ant ||= ::Antwrap::AntProject.new(:ant_home => ant_home || File.expand_path(File.join(File.dirname(__FILE__), '..', 'jars')),
+    @ant ||= ::Antwrap::AntProject.new(:ant_home => ant_home,
       :name => "ivy-ant", :basedir => Dir.pwd, :declarative => true)
     init(@ant) if should_init?
     @ant

@@ -55,7 +55,7 @@ module Buildr
         unless @ant
           if own_file?
             @ant = ::Ivy4r.new(@project.ant('ivy'))
-            @ant.lib_dir = lib_dir
+            @ant.lib_dir = lib_dir if lib_dir
             @ant.project_dir = @extension_dir
           else
             @ant = @project.parent.ivy.ant
@@ -148,7 +148,7 @@ module Buildr
       end
 
       def lib_dir
-        @lib_dir ||= Ivy.setting('lib.dir') || "#{home}/jars"
+        @lib_dir ||= Ivy.setting('lib.dir')
       end
       
       def settings

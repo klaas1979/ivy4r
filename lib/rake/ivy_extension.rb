@@ -8,6 +8,9 @@ module Rake
   module Ivy
     class IvyConfig
 
+      # The directory to load ivy jars and its dependencies from, leave __nil__ to use default
+      attr_accessor :lib_dir
+
       # The extension directory containing ivy settings, the local repository and cache
       attr_accessor :extension_dir
 
@@ -24,7 +27,7 @@ module Rake
       def ant
         unless @ant
           @ant = ::Ivy4r.new
-          @ant.lib_dir = lib_dir
+          @ant.lib_dir = lib_dir if lib_dir
           @ant.project_dir = @extension_dir
         end
         @ant
@@ -79,10 +82,6 @@ module Rake
 
       def home
         @ivy_home_dir ||= "#{@extension_dir}/ivy-home"
-      end
-
-      def lib_dir
-        @lib_dir ||= "#{home}/jars"
       end
 
       def settings
