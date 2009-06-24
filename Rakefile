@@ -6,9 +6,9 @@ require 'hoe'
 require 'ivy4r'
   
 hoe = Hoe.spec 'ivy4r' do |p|
-  # self.rubyforge_name = 'ivy4rx' # if different than 'ivy4r'
+  self.rubyforge_name = 'hamburgrb'
   p.developer('Klaas Prause', 'klaas.prause@googlemail.com')
-  p.remote_rdoc_dir = '' # Release to root only one project
+  p.remote_rdoc_dir = 'ivy4r'
   p.extra_deps << ['Antwrap', '>=0.7.0']
   p.extra_deps << ['ivy4r-jars', '>=1.0.0']
   File.open(File.join(File.dirname(__FILE__), 'VERSION'), 'w') do |file|
@@ -22,5 +22,10 @@ begin
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
 end
+
+task :gemspec => :test
+
+desc "Tests, releases and publishs docs to rubyforge"
+task :release_and_publish => [:test, :release, :publish_docs]
 
 # vim: syntax=ruby

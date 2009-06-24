@@ -11,8 +11,6 @@ module Ivy
 
     def setup
       @ivy4r = Ivy4r.new
-      @ivy4r.ant_home = File.join(File.dirname(__FILE__), '..', 'jars')
-      @ivy4r.lib_dir = @ivy4r.ant_home
       @ivy_test_xml = File.join(File.dirname(__FILE__), 'ivy', 'ivytest.xml')
     end
 

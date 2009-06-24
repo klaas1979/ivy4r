@@ -1,3 +1,13 @@
+=== 0.5.1 / 2009-06-24
+
+* small improvements in rakefile (execute test for some targets)
+* publish to rubyforge "hamburg.rb"
+
+=== 0.5.0 / 2009-06-23
+
+* use ivy4r-jars to get needed jars from to separate the ruby source from the dependencies
+  and make the gem smaller.
+
 === 0.4.0 / 2009-06-23
 
 * added rake/ivy_extension similar to buildr/ivy_extension to help use ivy4r in rake

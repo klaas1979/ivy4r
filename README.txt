@@ -1,7 +1,7 @@
 = ivy4r
 
 * http://github.com/klaas1979/ivy4r/tree/master
-* http://ivy4r.rubyforge.org/
+* http://hamburgrb.rubyforge.org/
 
 == DESCRIPTION:
 

@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ivy4r}
-  s.version = "0.5.0"
+  s.version = "0.5.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
-  s.date = %q{2009-06-23}
+  s.date = %q{2009-06-24}
   s.default_executable = %q{ivy4r}
   s.description = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
@@ -63,7 +63,7 @@ for dependency management.}
   s.homepage = %q{http://github.com/klaas1979/ivy4r/tree/master}
   s.rdoc_options = ["--main", "README.txt", "--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubyforge_project = %q{ivy4r}
+  s.rubyforge_project = %q{hamburgrb}
   s.rubygems_version = %q{1.3.3}
   s.summary = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information)}
   s.test_files = [
