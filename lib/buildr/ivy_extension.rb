@@ -76,13 +76,15 @@ module Buildr
         ant.cachepath :conf => confs.join(','), :pathid => pathid
       end
 
-      # Returns ivy info for configured ivy file.
+      # Returns ivy info for configured ivy file using a new ant instance.
       def info
         if @base_ivy
           @base_ivy.info
         else
           ant.settings :id => 'ivy.info.settingsref'
-          ant.info :file => file, :settingsRef => 'ivy.info.settingsref'
+          result = ant.info :file => file, :settingsRef => 'ivy.info.settingsref'
+          @ant = nil
+          result
         end
       end
 
