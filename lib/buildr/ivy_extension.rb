@@ -34,7 +34,7 @@ module Buildr
       def initialize(project)
         @project = project
         if project.parent.nil?
-          @extension_dir = File.join("#{@project.base_dir}", "#{ENV['BUILDR_EXT_DIR']}")
+          @extension_dir = @project.base_dir
         else
           @extension_dir = @project.parent.ivy.extension_dir
           @base_ivy = @project.parent.ivy unless own_file?
