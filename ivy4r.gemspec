@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ivy4r}
-  s.version = "0.5.3"
+  s.version = "0.6.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
-  s.date = %q{2009-07-01}
+  s.date = %q{2009-07-08}
   s.default_executable = %q{ivy4r}
   s.description = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
@@ -79,15 +79,18 @@ for dependency management.}
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<Antwrap>, [">= 0.7.0"])
       s.add_runtime_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
+      s.add_runtime_dependency(%q<facets>, [">= 2.5.2"])
       s.add_development_dependency(%q<hoe>, [">= 2.2.0"])
     else
       s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
       s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
+      s.add_dependency(%q<facets>, [">= 2.5.2"])
       s.add_dependency(%q<hoe>, [">= 2.2.0"])
     end
   else
     s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
     s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
+    s.add_dependency(%q<facets>, [">= 2.5.2"])
     s.add_dependency(%q<hoe>, [">= 2.2.0"])
   end
 end

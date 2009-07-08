@@ -402,6 +402,7 @@ For more configuration options see IvyConfig.
             project.compile.with project.ivy.deps(compile_conf)
             info "Ivy adding compile dependencies '#{compile_conf.join(', ')}' to project '#{project.name}'"
           end
+          
           project.task :compile => "#{project.name}:compiledeps"
 
           project.task :testdeps => resolve_target do
@@ -417,6 +418,10 @@ For more configuration options see IvyConfig.
             info "Ivy adding javadoc dependencies '#{confs.join(', ')}' to project '#{project.name}'"
           end
           project.task :javadoc => "#{project.name}:javadocdeps"
+
+          [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
+            task.prerequisites.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
+          end
         end
 
         def add_manifest_to_distributeables(project)
