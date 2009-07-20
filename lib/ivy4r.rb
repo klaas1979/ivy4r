@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.6.0'
+  VERSION = '0.7.0'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.

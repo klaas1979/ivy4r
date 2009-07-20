@@ -4,7 +4,7 @@ module Buildr
   module Ivy
 
     # TODO extend extension to download ivy stuff with dependencies automatically
-#    VERSION = '2.1.0-rc1'
+    #    VERSION = '2.1.0-rc1'
 
     class << self
 
@@ -14,16 +14,16 @@ module Buildr
         setting
       end
 
-#      def version
-#        setting['version'] || VERSION
-#      end
-#      def dependencies
-#        @dependencies ||= [
-#          "org.apache.ivy:ivy:jar:#{version}",
-#          'com.jcraft:jsch:jar:1.41',
-#          'oro:oro:jar:2.08'
-#        ]
-#      end
+      #      def version
+      #        setting['version'] || VERSION
+      #      end
+      #      def dependencies
+      #        @dependencies ||= [
+      #          "org.apache.ivy:ivy:jar:#{version}",
+      #          'com.jcraft:jsch:jar:1.41',
+      #          'oro:oro:jar:2.08'
+      #        ]
+      #      end
     end
     
     class IvyConfig
@@ -72,8 +72,11 @@ module Buildr
       # Returns the artifacts for given configurations as array
       def deps(*confs)
         configure
-        pathid = "ivy.deps." + confs.join('.')
-        ant.cachepath :conf => confs.join(','), :pathid => pathid
+        confs = confs.reject {|c| c.nil? || c.blank? }
+        unless confs.empty?
+          pathid = "ivy.deps." + confs.join('.')
+          ant.cachepath :conf => confs.join(','), :pathid => pathid
+        end
       end
 
       # Returns ivy info for configured ivy file using a new ant instance.
@@ -312,60 +315,118 @@ module Buildr
         end
       end
 
-      # Set the configuration artifacts to use in package tasks like +:war+ or +:ear+.
-      # <tt>project.ivy.package_conf('server', 'client')</tt>
-      # or
-      # <tt>project.ivy.package_conf(['server', 'client'])</tt>
-      def package_conf(*package_conf)
-        if package_conf.empty?
-          @package_conf ||= [Ivy.setting('package.conf') || 'prod'].flatten.uniq
-        else
-          @package_conf = [package_conf].flatten.uniq
-          self
+      # Sets the includes pattern(s) to use for compile, test and package, via the equivalent symbols. I.e.
+      # <tt>project.ivy.include(:compile => [/\.jar/, /\.gz/], :package => 'cglib.jar')</tt>
+      def include(includes)
+        includes.each do |type, value|
+          handle_variable(type, :include, *value)
         end
+        self
       end
 
-      # Sets the includes pattern(s) to use for packages. I.e.
-      # <tt>project.ivy.package_include(/\.jar/, /\.gz/)</tt>
+      # Sets the exclude pattern(s) to use for compile, test and package, via the equivalent symbols. I.e.
+      # <tt>project.ivy.exclude(:compile => [/\.jar/, /\.gz/], :package => 'cglib.jar')</tt>
+      def exclude(excludes)
+        excludes.each do |type, value|
+          handle_variable(type, :exclude, *value)
+        end
+        self
+      end
+
+      # Sets the conf to use for compile, test and package, via the equivalent symbols. I.e.
+      # <tt>project.ivy.conf(:compile => ['base', 'server'], :package => 'prod')</tt>
+      def conf(confs)
+        confs.each do |type, value|
+          handle_variable(type, :conf, *value)
+        end
+        self
+      end
+
+      # Set the artifacts to include into compile. See #include to set this via hash.
+      def compile_include(*includes)
+        handle_variable(:compile, :include, *includes)
+      end
+
+      # Set the artifacts to exclude into compile. See #exclude to set this via hash.
+      def compile_exclude(*includes)
+        handle_variable(:compile, :exclude, *includes)
+      end
+
+      # Set the artifacts to include into test. See #include to set this via hash.
+      def test_include(*includes)
+        handle_variable(:test, :include, *includes)
+      end
+
+      # Set the artifacts to exclude into test. See #exclude to set this via hash.
+      def test_exclude(*includes)
+        handle_variable(:test, :exclude, *includes)
+      end
+
+      # Set the artifacts to include into package. See #include to set this via hash.
       def package_include(*includes)
-        if includes.empty?
-          @package_include ||= [Ivy.setting('package.include') || /\.jar/].flatten.uniq
-        else
-          @package_include = [includes].flatten.uniq
-          self
-        end
+        handle_variable(:package, :include, *includes)
       end
 
-      # Sets the exclude pattern(s) to use for packages. I.e.
-      # <tt>project.ivy.package_exclude(/\.zip/, /\.tar/)</tt>
-      def package_exclude(*excludes)
-        if excludes.empty?
-          @package_exclude ||= [Ivy.setting('package.exlude') || ''].flatten.uniq
-        else
-          @package_exclude = [excludes].flatten.uniq
-          self
-        end
+      # Set the artifacts to exclude into package. See #exclude to set this via hash.
+      def package_exclude(*includes)
+        handle_variable(:package, :exclude, *includes)
       end
 
       # Set the configuration artifacts to use for compile tasks, added to <tt>compile.with</tt>
       # <tt>project.ivy.compile_conf('server', 'client')</tt>
+      # See #conf to do this via hash.
       def compile_conf(*compile_conf)
-        if compile_conf.empty?
-          @compile_conf ||= [Ivy.setting('compile.conf') || 'compile'].flatten.uniq
-        else
-          @compile_conf = [compile_conf].flatten.uniq
-          self
-        end
+        handle_variable(:compile, :conf, *compile_conf)
       end
 
       # Set the configuration artifacts to use for test tasks, added to <tt>test.compile.with</tt>
       # and <tt>test.with</tt>. Note that all artifacts from #compile_conf are added automatically.
       # <tt>project.ivy.test_conf('server', 'test')</tt>
+      # See #conf to do this via hash.
       def test_conf(*test_conf)
-        if test_conf.empty?
-          @test_conf ||= [Ivy.setting('test.conf') || 'test'].flatten.uniq
+        handle_variable(:test, :conf, *test_conf)
+      end
+
+      # Set the configuration artifacts to use in package tasks like +:war+ or +:ear+.
+      # <tt>project.ivy.package_conf('server', 'client')</tt>
+      # or
+      # <tt>project.ivy.package_conf(['server', 'client'])</tt>
+      # See #conf to do this via hash.
+      def package_conf(*package_conf)
+        handle_variable(:package, :conf, *package_conf)
+      end
+
+      # Helper to return all artifacts for given confs filtered after includes and excludes.
+      def filter(confs, includes, excludes)
+        artifacts = deps(*confs)
+        if artifacts
+          artifacts = artifacts.find_all do |lib|
+            lib = File.basename(lib)
+            includes = includes.reject {|i| i.nil? || i.blank? }
+            should_include = includes.empty? || includes.any? {|include| include === lib }
+            should_include && !excludes.any? {|exclude| exclude === lib}
+          end
+        end
+
+        artifacts
+      end
+
+      private
+      # Sets a variable for given basename and type to given values. If values are empty returns the
+      # current value.
+      # I.e. <tt>handle_variable(:package, :include, /blua.*\.jar/, /da.*\.jar/)</tt>
+      def handle_variable(basename, type, *values)
+        variable = "@#{basename.to_s}_#{type.to_s}".to_sym
+        unless [:@compile_conf, :@test_conf, :@package_conf, :@compile_include, :@test_include,
+            :@package_include, :@compile_exclude, :@test_exclude, :@package_exclude].member?(variable)
+          raise ArgumentError, "Unknown variable '#{variable.to_s}' for basename '#{basename.to_s}' and type '#{type.to_s}'"
+        end
+        if values.empty?
+          variable_value = instance_variable_get(variable)
+          instance_variable_set(variable, [Ivy.setting("#{basename.to_s}.#{type.to_s}") || ''].flatten.uniq) unless variable_value
+          instance_variable_get(variable)
         else
-          @test_conf = [test_conf].flatten.uniq
+          instance_variable_set(variable, [values].flatten.uniq)
           self
         end
       end
@@ -398,16 +459,20 @@ For more configuration options see IvyConfig.
         def add_ivy_deps_to_java_tasks(project)
           resolve_target = project.ivy.file_project.task('ivy:resolve')
           project.task :compiledeps => resolve_target do
-            compile_conf = [project.ivy.compile_conf].flatten
-            project.compile.with project.ivy.deps(compile_conf)
-            info "Ivy adding compile dependencies '#{compile_conf.join(', ')}' to project '#{project.name}'"
+            includes = project.ivy.compile_include
+            excludes = project.ivy.compile_exclude
+            confs = [project.ivy.compile_conf].flatten
+            project.compile.with project.ivy.filter(confs, includes, excludes)
+            info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
           end
           
           project.task :compile => "#{project.name}:compiledeps"
 
           project.task :testdeps => resolve_target do
+            includes = project.ivy.test_include
+            excludes = project.ivy.test_exclude
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
-            project.test.with project.ivy.deps(confs)
+            project.test.with project.ivy.filter(confs, includes, excludes)
             info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
           end
           project.task "test:compile" => "#{project.name}:testdeps"
@@ -437,21 +502,14 @@ For more configuration options see IvyConfig.
         end
 
         def add_prod_libs_to_distributeables(project)
-          includes = project.ivy.package_include
-          excludes = project.ivy.package_exclude
           pkgs = project.packages.find_all { |pkg| [:war, :ear].member? pkg.type }
           pkgs.each do |pkg|
             name = "#{pkg.name}deps"
             task = project.task name => project.ivy.file_project.task('ivy:resolve') do
+              includes = project.ivy.package_include
+              excludes = project.ivy.package_exclude
               confs = project.ivy.package_conf
-              libs =  project.ivy.deps(confs).find_all do |lib|
-                lib = File.basename(lib)
-                use = includes.any? {|include| include === lib } && !excludes.any? {|exclude| exclude === lib}
-                verbose "Including '#{lib}' from package '#{pkg}' in project '#{project.name}'" if use
-                info "Excluding '#{lib}' from package '#{pkg}' in project '#{project.name}'" unless use
-                use
-              end
-              pkg.with :libs => libs
+              pkg.with :libs => project.ivy.filter(confs, includes, excludes)
               info "Adding production libs from conf '#{confs.join(', ')}' to package '#{pkg.name}' in project '#{project.name}'"
             end
             project.task :build => task
