@@ -1,6 +1,8 @@
 === 0.7.0 / 2009-07-20
 
 * support for new configuration syntax +ivy.conf :compile => 'conf', :package => 'other', :test => ['still', 'other']
+* more include/exclude possibilities, support to include and exclude for compile and test targets using
+  +ivy.include :compile => [pattern list]+ or +ivy.exclude+
 * small refactorings
 
 === 0.6.0 / 2009-07-08
