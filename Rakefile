@@ -12,6 +12,8 @@ hoe = Hoe.spec 'ivy4r' do |p|
   p.extra_deps << ['Antwrap', '>=0.7.0']
   p.extra_deps << ['ivy4r-jars', '>=1.0.0']
   p.extra_deps << ['facets', '>=2.5.2']
+  #p.extra_deps << ['thoughtbot-shoulda', '>=2.5.2']
+  #p.extra_deps << ['rr', '>=0.10.0']
   File.open(File.join(File.dirname(__FILE__), 'VERSION'), 'w') do |file|
     file.puts Ivy4r::VERSION
   end

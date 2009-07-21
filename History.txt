@@ -1,6 +1,15 @@
 === 0.7.0 / 2009-07-20
 
-* support for new configuration syntax +ivy.conf :compile => 'conf', :package => 'other', :test => ['still', 'other']
+* It is possible to register +post_resolve+ actions via blocks:
+  ivy.post_resolve {...}
+* support for generic configuration syntax via +method_missing+:
+  Any method combination of TARGETS [:compile, :test, :package] and TYPES [:conf, :include, :exclude] is valid.
+  It is possible to set all confs at once:
+  +ivy.conf :compile => 'conf', :package => 'other', :test => ['still', 'other']
+  Or to set the complete package options:
+  +ivy.package :conf => 'prod', :include => /includepattern/, :exclude => /excludepattern/+
+  Or to set a specific value via a complete call like:
+  +ivy.compile_conf [...] or ivy.conf_test [...] or ivy.package.include [...]
 * more include/exclude possibilities, support to include and exclude for compile and test targets using
   +ivy.include :compile => [pattern list]+ or +ivy.exclude+
 * small refactorings
