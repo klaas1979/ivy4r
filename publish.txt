@@ -1,0 +1,6 @@
+To publish to rubyforge MatzRuby must be used, issue with ssl:
+/var/lib/gems/1.8/gems/rake-0.8.7/bin/rake release_to_rubyforge VERSION=x.x.x
+
+Publish rdoc to rubyforge:
+/var/lib/gems/1.8/gems/rake-0.8.7/bin/rake publish_docs
+
