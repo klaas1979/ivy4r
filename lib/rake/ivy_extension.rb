@@ -57,7 +57,7 @@ module Rake
       end
 
       # Resolves the configured file once.
-      def resolve
+      def __resolve__
         unless @resolved
           @resolved = ant.resolve :file => file
         end
@@ -69,7 +69,7 @@ module Rake
       end
 
       # Publishs the project as defined in ivy file if it has not been published already
-      def publish
+      def __publish__
         unless @published
           options = {:artifactspattern => "#{publish_from}/[artifact].[ext]"}
           options[:pubrevision] = revision if revision
@@ -233,12 +233,12 @@ module Rake
           
           desc 'Resolves the ivy dependencies'
           task :resolve => "ivy:configure" do
-            Rake.application.ivy.resolve
+            Rake.application.ivy.__resolve__
           end
 
           desc 'Publish the artifacts to ivy repository'
           task :publish => "ivy:resolve" do
-            Rake.application.ivy.publish
+            Rake.application.ivy.__publish__
           end
 
           desc 'Creates a dependency report for the project'

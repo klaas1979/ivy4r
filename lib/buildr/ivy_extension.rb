@@ -115,9 +115,9 @@ module Buildr
       end
 
       # Resolves the configured file once.
-      def resolve
+      def __resolve__
         if @base_ivy
-          @base_ivy.resolve
+          @base_ivy.__resolve__
         else
           unless @resolved
             @resolved = ant.resolve :file => file
@@ -146,9 +146,9 @@ module Buildr
       end
 
       # Publishs the project as defined in ivy file if it has not been published already
-      def publish
+      def __publish__
         if @base_ivy
-          @base_ivy.publish
+          @base_ivy.__publish__
         else
           unless @published
             options = {:status => status, :pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
@@ -280,6 +280,10 @@ module Buildr
         end
       end
 
+      # :call-seq:
+      # ivy.publish(package(:jar) => 'new_name_without_version_number.jar')
+      # #deprecated! ivy.name(package(:jar) => 'new_name_without_version_number.jar')
+      #
       # Maps a package to a different name for publishing. This name is used instead of the default name
       # for publishing use a hash with the +package+ as key and the newly mapped name as value. I.e.
       # <tt>ivy.name(package(:jar) => 'new_name_without_version_number.jar')</tt>
@@ -293,6 +297,7 @@ module Buildr
           self
         end
       end
+      alias_method :publish, :name
 
       # Sets the directory to publish artifacts from.
       def publish_from(*publish_dir)
@@ -395,12 +400,12 @@ module Buildr
       
       private
       def target(targets)
-        t = targets.to_s.split('_').find { |t| TARGETS.member? t.to_sym }
+        t = targets.to_s.split('_').find { |target| TARGETS.member? target.to_sym }
         t ? t.to_sym : nil
       end
 
       def type(types)
-        t = types.to_s.split('_').find { |t| TYPES.member? t.to_sym }
+        t = types.to_s.split('_').find { |type| TYPES.member? type.to_sym }
         t ? t.to_sym : nil
       end
 
@@ -595,7 +600,7 @@ For more configuration options see IvyConfig.
             end
 
             task :resolve => "#{project.name}:ivy:configure" do
-              project.ivy.resolve
+              project.ivy.__resolve__
             end
 
             task :report => "#{project.name}:ivy:resolve" do
@@ -603,7 +608,7 @@ For more configuration options see IvyConfig.
             end
 
             task :publish => "#{project.name}:ivy:resolve" do
-              project.ivy.publish
+              project.ivy.__publish__
             end
           end
         end
