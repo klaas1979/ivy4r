@@ -470,7 +470,7 @@ For more configuration options see IvyConfig.
             excludes = project.ivy.compile_exclude
             confs = [project.ivy.compile_conf].flatten
             if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-              project.compile.with deps
+              project.compile.with [project.compile.dependencies, deps].flatten
               info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -482,7 +482,7 @@ For more configuration options see IvyConfig.
             excludes = project.ivy.test_exclude
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
             if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-              project.test.with deps
+              project.test.with [project.test.dependencies, deps].flatten
               info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -523,7 +523,7 @@ For more configuration options see IvyConfig.
               excludes = project.ivy.package_exclude
               confs = project.ivy.package_conf
               if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-                pkg.with :libs => deps
+                pkg.with :libs => [pkg.libs, deps].flatten
                 info "Adding production libs from conf '#{confs.join(', ')}' to package '#{pkg.name}' in project '#{project.name}'"
               end
             end
