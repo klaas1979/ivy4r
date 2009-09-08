@@ -470,7 +470,7 @@ For more configuration options see IvyConfig.
             excludes = project.ivy.compile_exclude
             confs = [project.ivy.compile_conf].flatten
             if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-              project.compile.with [project.compile.dependencies, deps].flatten
+              project.compile.with [deps, project.compile.dependencies].flatten
               info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -482,7 +482,7 @@ For more configuration options see IvyConfig.
             excludes = project.ivy.test_exclude
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
             if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-              project.test.with [project.test.dependencies, deps].flatten
+              project.test.with [deps, project.test.dependencies].flatten
               info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -515,16 +515,29 @@ For more configuration options see IvyConfig.
         end
 
         def add_prod_libs_to_distributeables(project)
-          pkgs = project.packages.find_all { |pkg| [:war, :ear].member? pkg.type }
+          pkgs = project.packages.find_all { |pkg| [:war].member? pkg.type }
           pkgs.each do |pkg|
-            name = "#{pkg.name}deps"
-            task = project.task name => project.ivy.file_project.task('ivy:resolve') do
+            task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
               includes = project.ivy.package_include
               excludes = project.ivy.package_exclude
               confs = project.ivy.package_conf
               if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
-                pkg.with :libs => [pkg.libs, deps].flatten
-                info "Adding production libs from conf '#{confs.join(', ')}' to package '#{pkg.name}' in project '#{project.name}'"
+                pkg.with :libs => [deps, pkg.libs].flatten
+                info "Adding production libs from conf '#{confs.join(', ')}' to WAR '#{pkg.name}' in project '#{project.name}'"
+              end
+            end
+            project.task :build => task
+          end
+
+          pkgs = project.packages.find_all { |pkg| [:ear].member? pkg.type }
+          pkgs.each do |pkg|
+            task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
+              includes = project.ivy.package_include
+              excludes = project.ivy.package_exclude
+              confs = project.ivy.package_conf
+              if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
+                pkg.add deps, :type => :lib, :path => ''
+                info "Adding production libs from conf '#{confs.join(', ')}' to EAR '#{pkg.name}' in project '#{project.name}'"
               end
             end
             project.task :build => task
