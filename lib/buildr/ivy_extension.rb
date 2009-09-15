@@ -33,6 +33,9 @@ module Buildr
       attr_accessor :extension_dir, :resolved
 
       attr_reader :post_resolve_task_list
+      
+      # Hash of all artifacts to publish with mapping from artifact name to ivy publish name
+      attr_reader :publish_mappings
 
       # Store the current project and initialize ivy ant wrapper
       def initialize(project)
@@ -57,19 +60,20 @@ module Buildr
         @own_file ||= File.exists?(@project.path_to(file))
       end
 
-      # Returns the correct ant instance to use, if project has its own ivy file uses the ivy file
+      # Returns the correct ivy4r instance to use, if project has its own ivy file uses the ivy file
       # of project, if not uses the ivy file of parent project.
-      def ant
-        unless @ant
+      # Use this for low-level access to ivy functions as needed, i.e. in +post_resolve+
+      def ivy4r
+        unless @ivy4r
           if own_file?
-            @ant = ::Ivy4r.new(@project.ant('ivy'))
-            @ant.lib_dir = lib_dir if lib_dir
-            @ant.project_dir = @extension_dir
+            @ivy4r = ::Ivy4r.new(@project.ant('ivy'))
+            @ivy4r.lib_dir = lib_dir if lib_dir
+            @ivy4r.project_dir = @extension_dir
           else
-            @ant = @project.parent.ivy.ant
+            @ivy4r = @project.parent.ivy.ivy4r
           end
         end
-        @ant
+        @ivy4r
       end
 
       # Returns name of the project the ivy file belongs to.
@@ -84,18 +88,18 @@ module Buildr
         confs = confs.reject {|c| c.nil? || c.blank? }
         unless confs.empty?
           pathid = "ivy.deps." + confs.join('.')
-          ant.cachepath :conf => confs.join(','), :pathid => pathid
+          ivy4r.cachepath :conf => confs.join(','), :pathid => pathid
         end
       end
 
-      # Returns ivy info for configured ivy file using a new ant instance.
+      # Returns ivy info for configured ivy file using a new ivy4r instance.
       def info
         if @base_ivy
           @base_ivy.info
         else
-          ant.settings :id => 'ivy.info.settingsref'
-          result = ant.info :file => file, :settingsRef => 'ivy.info.settingsref'
-          @ant = nil
+          ivy4r.settings :id => 'ivy.info.settingsref'
+          result = ivy4r.info :file => file, :settingsRef => 'ivy.info.settingsref'
+          @ivy4r = nil
           result
         end
       end
@@ -106,10 +110,10 @@ module Buildr
           @base_ivy.configure
         else
           unless @configured
-            ant.property['ivy.status'] = status
-            ant.property['ivy.home'] = home
-            properties.each {|key, value| ant.property[key.to_s] = value }
-            @configured = ant.settings :file => settings if settings
+            ivy4r.property['ivy.status'] = status
+            ivy4r.property['ivy.home'] = home
+            properties.each {|key, value| ivy4r.property[key.to_s] = value }
+            @configured = ivy4r.settings :file => settings if settings
           end
         end
       end
@@ -120,7 +124,7 @@ module Buildr
           @base_ivy.__resolve__
         else
           unless @resolved
-            @resolved = ant.resolve :file => file
+            @resolved = ivy4r.resolve :file => file
             @project.send(:info, "Calling '#{post_resolve_tasks.size}' post_resolve tasks for '#{@project.name}'")
             post_resolve_tasks.each { |p| p.call(self) }
           end
@@ -142,7 +146,7 @@ module Buildr
 
       # Creates the standard ivy dependency report
       def report
-        ant.report :todir => report_dir
+        ivy4r.report :todir => report_dir
       end
 
       # Publishs the project as defined in ivy file if it has not been published already
@@ -153,7 +157,7 @@ module Buildr
           unless @published
             options = {:status => status, :pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
             options = publish_options * options
-            ant.publish options
+            ivy4r.publish options
             @published = true
           end
         end
@@ -181,7 +185,7 @@ module Buildr
       # To set a different revision this method can be used in different ways.
       # 1. project.ivy.revision(revision) to set the revision directly
       # 2. project.ivy.revision { |ivy| [calculate revision] } use the block for dynamic
-      #    calculation of the revision. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of the revision. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def revision(*revision, &block)
         raise "Invalid call with parameters and block!" if revision.size > 0 && block
         if revision.empty? && block.nil?
@@ -206,7 +210,7 @@ module Buildr
       # To set a different status this method can be used in different ways.
       # 1. project.ivy.status(status) to set the status directly
       # 2. project.ivy.status { |ivy| [calculate status] } use the block for dynamic
-      #    calculation of the status. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of the status. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def status(*status, &block)
         raise "Invalid call with parameters and block!" if status.size > 0 && block
         if status.empty? && block.nil?
@@ -231,7 +235,7 @@ module Buildr
       # To set the options this method can be used in different ways.
       # 1. project.ivy.publish_options(options) to set the options directly
       # 2. project.ivy.publish_options { |ivy| [calculate options] } use the block for dynamic
-      #    calculation of options. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of options. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def publish_options(*options, &block)
         raise "Invalid call with parameters and block!" if options.size > 0 && block
         if options.empty? && block.nil?
@@ -288,12 +292,12 @@ module Buildr
       # for publishing use a hash with the +package+ as key and the newly mapped name as value. I.e.
       # <tt>ivy.name(package(:jar) => 'new_name_without_version_number.jar')</tt>
       # Note that this method is additive, a second call adds the names to the first.
-      def name(*name_mappings)
-        if name_mappings.empty?
-          @name_mappings ||= {}
+      def name(*publish_mappings)
+        if publish_mappings.empty?
+          @publish_mappings ||= {}
         else
-          raise "name_mappings value invalid #{name_mappings.join(', ')}" unless name_mappings.size == 1
-          @name_mappings = @name_mappings ? @name_mappings + name_mappings[0] : name_mappings[0].dup
+          raise "publish_mappings value invalid #{publish_mappings.join(', ')}" unless publish_mappings.size == 1
+          @publish_mappings = @publish_mappings ? @publish_mappings + publish_mappings[0] : publish_mappings[0].dup
           self
         end
       end
@@ -633,7 +637,7 @@ For more configuration options see IvyConfig.
       task :clean do
         info "Cleaning local ivy cache"
         Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-          project.ivy.ant.clean
+          project.ivy.ivy4r.clean
         end
       end
 
