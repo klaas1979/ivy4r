@@ -64,8 +64,8 @@ Supports most standard Ivy Ant targets via Antwrap.
 
 == INSTALL:
 
-* sudo gem install ivy4r
-* sudo gem install klaas1979-ivy4r (from github to get the development stuff)
+You can use gemcutter to install
+  sudo gem install ivy4r
 
 == LICENSE:
 

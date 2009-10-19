@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Klaas Prause"]
-  s.date = %q{2009-09-15}
+  s.date = %q{2009-10-19}
   s.default_executable = %q{ivy4r}
   s.description = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information).
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
@@ -64,7 +64,7 @@ for dependency management.}
   s.rdoc_options = ["--main", "README.txt", "--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{hamburgrb}
-  s.rubygems_version = %q{1.3.3}
+  s.rubygems_version = %q{1.3.5}
   s.summary = %q{Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apache.org/ivy/index.html] for more information)}
   s.test_files = [
     "test/test_ivy4r.rb",
@@ -80,17 +80,17 @@ for dependency management.}
       s.add_runtime_dependency(%q<Antwrap>, [">= 0.7.0"])
       s.add_runtime_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
       s.add_runtime_dependency(%q<facets>, [">= 2.5.2"])
-      s.add_development_dependency(%q<hoe>, [">= 2.2.0"])
+      s.add_development_dependency(%q<hoe>, [">= 2.3.3"])
     else
       s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
       s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
       s.add_dependency(%q<facets>, [">= 2.5.2"])
-      s.add_dependency(%q<hoe>, [">= 2.2.0"])
+      s.add_dependency(%q<hoe>, [">= 2.3.3"])
     end
   else
     s.add_dependency(%q<Antwrap>, [">= 0.7.0"])
     s.add_dependency(%q<ivy4r-jars>, [">= 1.0.0"])
     s.add_dependency(%q<facets>, [">= 2.5.2"])
-    s.add_dependency(%q<hoe>, [">= 2.2.0"])
+    s.add_dependency(%q<hoe>, [">= 2.3.3"])
   end
 end
