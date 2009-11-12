@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.8.0'
+  VERSION = '0.8.1'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -49,6 +49,10 @@ class Ivy4r
   # defaults to the __lib_dir__
   attr_accessor :project_dir
 
+  # The ant property name to use for references to environment properties in ant and ivy,
+  # defaults to 'env'
+  attr_accessor :environment_property
+
   # To provide a custom __antwrap__ to use instead of default one
   attr_writer :ant
 
@@ -58,6 +62,7 @@ class Ivy4r
     @ant_home = ::Ivy4rJars.ant_home_dir
     @lib_dir = ::Ivy4rJars.lib_dir
     @project_dir = @lib_dir
+    @environment_property = 'env'
     @ant = ant
   end
 
@@ -169,6 +174,7 @@ class Ivy4r
 
   def init(ant)
     @init_done = true
+    ant.property :environment => environment_property
     ant.property :name => 'ivy.project.dir', :value => project_dir
     ant.path :id => 'ivy.lib.path' do
       ant.fileset :dir => lib_dir, :includes => '*.jar'

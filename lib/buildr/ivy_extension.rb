@@ -84,7 +84,6 @@ module Buildr
       # Returns the artifacts for given configurations as array
       # this is a post resolve task.
       def deps(*confs)
-        configure
         confs = confs.reject {|c| c.nil? || c.blank? }
         unless confs.empty?
           pathid = "ivy.deps." + confs.join('.')
@@ -587,14 +586,6 @@ For more configuration options see IvyConfig.
       
           desc 'Clean the local Ivy cache and the local ivy repository'
           task :clean
-        end
-      end
-
-      before_define do |project|
-        if project.parent.nil? && project.ivy.enabled?
-          info = project.ivy.info
-          project.version = info['ivy.revision']
-          project.group = "#{info['ivy.organisation']}.#{info['ivy.module']}"
         end
       end
 

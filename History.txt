@@ -1,3 +1,22 @@
+=== 0.8.1 / 2009-11-12
+
+* the project version is NOT set anymore by the the 'before_define' of the extension. The reason
+  for this are problems with ivy files that contain external references (i.e. include within the conf
+  block). The info task used for this needs more configuration information to work properly so this
+  feature is removed and the user must do it herself.
+   * In our projects we just moved the defintion to a different extension that configures more stuff
+     before setting the version and group:
+     before_define do |project|
+          if project.parent.nil? && project.ivy.enabled?
+            # do more configuration here prior setting the versions
+            info = project.ivy.info
+            project.version = info['ivy.revision']
+            project.group = "#{info['ivy.organisation']}.#{info['ivy.module']}"
+          end
+        end
+    * As an alternative you can set the group and version manually in the build file as it is usally done
+      in buildr.
+
 === 0.8.0 / 2009-10-19
 
 * Moved to gemcutter for hosting of gems 'gem install gemcutter' add it as primary location and you
