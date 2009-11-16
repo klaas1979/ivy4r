@@ -22,6 +22,7 @@ lib/ivy/retrieve.rb
 lib/ivy/settings.rb
 lib/ivy/target.rb
 lib/ivy/targets.rb
+lib/ivy/to_ivy_file.rb
 lib/ivy4r.rb
 lib/rake/ivy_extension.rb
 test/buildlist/p1/buildfile
