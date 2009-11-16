@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.9.1'
+  VERSION = '0.9.2'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -149,6 +149,12 @@ class Ivy4r
   # Calls the __report__ ivy target with given parameters
   def report(*params)
     Ivy::Report.new(ant).execute(*params)
+  end
+
+  # Creates ivy file for last resolved descriptor using the underlying java facilities 
+  # (ModuleDescriptor.toIvyFile(java.io.File)).
+  def to_ivy_file(*params)
+    Ivy::ToIvyFile.new(ant).execute(*params)
   end
 
   # Used to get or set ant properties.

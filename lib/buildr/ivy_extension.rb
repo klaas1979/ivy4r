@@ -334,6 +334,17 @@ module Buildr
         end
       end
 
+      # Sets the properties for creation of an ivy file from resolved descriptor as an post_resolve task.
+      def to_ivy_file(args)
+        raise "The output file ':file' must be specified for 'to_ivy_file'" unless args.member? :file
+        raise "Only :file and :overwrite are allowed arguments for 'to_ivy_file'" if (args.keys - [:file, :overwrite]).size > 0
+        post_resolve do
+          FileUtils.mkdir_p File.dirname(args[:file])
+          ivy4r.to_ivy_file args
+          @project.send(:info, "Created ivy file: '#{args[:file]}'")
+        end
+      end
+
       # Adds given block as post resolve action that is executed directly after #resolve has been called.
       # Yields this ivy config object into block.
       # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>

@@ -1,3 +1,11 @@
+=== 0.9.2 / 2009-11-16
+
+* Added new method to generate an ivy file from a resolved module descriptor, via the java
+  method ModuleDescriptor.toIvyFile(java.io.File). This is only working in jruby, because
+  the method is not called via Antwrap!
+* Added support for buildr configuration to call 'to_ivy_file' to generate ivy file from resolved
+  module descriptor, i.e. using 'ivy.to_ivy_file :file => 'output.file', :overwrite => true'
+
 === 0.9.1 / 2009-11-16
 
 * Fixed bug that 'type' was not working for EAR
