@@ -3,32 +3,17 @@ require 'ivy4r'
 module Buildr
   module Ivy
 
-    # TODO extend extension to download ivy stuff with dependencies automatically
-    #    VERSION = '2.1.0-rc1'
-
     class << self
-
       def setting(*keys)
         setting = Buildr.settings.build['ivy']
         keys.each { |key| setting = setting[key] unless setting.nil? }
         setting
       end
-
-      #      def version
-      #        setting['version'] || VERSION
-      #      end
-      #      def dependencies
-      #        @dependencies ||= [
-      #          "org.apache.ivy:ivy:jar:#{version}",
-      #          'com.jcraft:jsch:jar:1.41',
-      #          'oro:oro:jar:2.08'
-      #        ]
-      #      end
     end
     
     class IvyConfig
       TARGETS = [:compile, :test, :package]
-      TYPES = [:conf, :include, :exclude]
+      TYPES = [:conf, :type, :include, :exclude]
 
       attr_accessor :extension_dir, :resolved
 
@@ -83,11 +68,26 @@ module Buildr
 
       # Returns the artifacts for given configurations as array
       # this is a post resolve task.
-      def deps(*confs)
-        confs = confs.reject {|c| c.nil? || c.blank? }
+      # the arguments are checked for the following:
+      # 1. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
+      # 2. if not exactly two arrays all args are used as confs
+      def deps(*args)
+        if args.size == 2 && args[0].kind_of?(Array) && args[1].kind_of?(Array)
+          confs, types = args[0], args[1]
+        else
+          confs, types = args.flatten, []
+        end
+        
+        [confs, types].each do |t|
+          t.reject! {|c| c.nil? || c.blank? }
+        end
+        
         unless confs.empty?
-          pathid = "ivy.deps." + confs.join('.')
-          ivy4r.cachepath :conf => confs.join(','), :pathid => pathid
+          pathid = "ivy.deps." + confs.join('.') + '.' + types.join('.')
+          params = {:conf => confs.join(','), :pathid => pathid}
+          params[:type] = types.join(',') unless types.nil? || types.size == 0
+
+          ivy4r.cachepath params
         end
       end
 
@@ -346,12 +346,12 @@ module Buildr
       # <tt>project.ivy.filter('server', 'client', :include => /b.*.jar/, :exclude => [/a\.jar/, /other.*\.jar/])</tt>
       def filter(*confs)
         filter = confs.last.kind_of?(Hash) ? confs.pop : {}
-        unless (filter.keys - [:include, :exclude]).empty?
+        unless (filter.keys - (TYPES - [:conf])).empty?
           raise ArgumentError, "Invalid filter use :include and/or :exclude only: given #{filter.keys.inspect}"
         end
-        includes, excludes = filter[:include] || [], filter[:exclude] || []
+        includes, excludes, types = filter[:include] || [], filter[:exclude] || [], filter[:type] || []
 
-        artifacts = deps(*confs.flatten)
+        artifacts = deps(confs.flatten, types.flatten)
         if artifacts
           artifacts = artifacts.find_all do |lib|
             lib = File.basename(lib)
@@ -471,8 +471,9 @@ For more configuration options see IvyConfig.
           project.task :compiledeps => resolve_target do
             includes = project.ivy.compile_include
             excludes = project.ivy.compile_exclude
+            types = project.ivy.compile_type
             confs = [project.ivy.compile_conf].flatten
-            if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
+            if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
               project.compile.with [deps, project.compile.dependencies].flatten
               info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
@@ -483,8 +484,9 @@ For more configuration options see IvyConfig.
           project.task :testdeps => resolve_target do
             includes = project.ivy.test_include
             excludes = project.ivy.test_exclude
+            types = project.ivy.test_type
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
-            if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
+            if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
               project.test.with [deps, project.test.dependencies].flatten
               info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
@@ -523,8 +525,9 @@ For more configuration options see IvyConfig.
             task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
               includes = project.ivy.package_include
               excludes = project.ivy.package_exclude
+              types = project.ivy.package_type
               confs = project.ivy.package_conf
-              if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
+              if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
                 pkg.with :libs => [deps, pkg.libs].flatten
                 info "Adding production libs from conf '#{confs.join(', ')}' to WAR '#{pkg.name}' in project '#{project.name}'"
               end
