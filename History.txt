@@ -1,3 +1,7 @@
+=== 0.9.1 / 2009-11-16
+
+* Fixed bug that 'type' was not working for EAR
+
 === 0.9.0 / 2009-11-16
 
 * Add a new configuration option for compile, test and package with name 'type'. The type can

@@ -540,8 +540,9 @@ For more configuration options see IvyConfig.
             task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
               includes = project.ivy.package_include
               excludes = project.ivy.package_exclude
+              types = project.ivy.package_type
               confs = project.ivy.package_conf
-              if deps = project.ivy.filter(confs, :include => includes, :exclude => excludes)
+              if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
                 pkg.add deps, :type => :lib, :path => ''
                 info "Adding production libs from conf '#{confs.join(', ')}' to EAR '#{pkg.name}' in project '#{project.name}'"
               end
