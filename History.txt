@@ -1,3 +1,14 @@
+=== 0.9.3 / 2009-11-18
+
+* Sorting of compile and test dependencies to prevent problems with old jars that are added by
+  buildr automatically, i.e. log4j-1.2.9 for cobertura or JUnit 4.4 if tests are using a newer version.
+  The sort order:
+  1. all project dependencies as classes, resources and this like in the order the are contained in path
+  2. all ivy dependencies
+  3. all dependencies added by buildr to the targets
+* Deleted 'to_ivy_file' functionality because it was not working as expected. The function used the
+  wrong ivy context and was not able to resolve all variables within the file from the correct ivy context.
+
 === 0.9.2 / 2009-11-16
 
 * Added new method to generate an ivy file from a resolved module descriptor, via the java

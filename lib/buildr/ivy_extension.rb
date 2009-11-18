@@ -334,17 +334,6 @@ module Buildr
         end
       end
 
-      # Sets the properties for creation of an ivy file from resolved descriptor as an post_resolve task.
-      def to_ivy_file(args)
-        raise "The output file ':file' must be specified for 'to_ivy_file'" unless args.member? :file
-        raise "Only :file and :overwrite are allowed arguments for 'to_ivy_file'" if (args.keys - [:file, :overwrite]).size > 0
-        post_resolve do
-          FileUtils.mkdir_p File.dirname(args[:file])
-          ivy4r.to_ivy_file args
-          @project.send(:info, "Created ivy file: '#{args[:file]}'")
-        end
-      end
-
       # Adds given block as post resolve action that is executed directly after #resolve has been called.
       # Yields this ivy config object into block.
       # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>
@@ -477,6 +466,7 @@ For more configuration options see IvyConfig.
       include Buildr::Extension
 
       class << self
+
         def add_ivy_deps_to_java_tasks(project)
           resolve_target = project.ivy.file_project.task('ivy:resolve')
           project.task :compiledeps => resolve_target do
@@ -486,6 +476,7 @@ For more configuration options see IvyConfig.
             confs = [project.ivy.compile_conf].flatten
             if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
               project.compile.with [deps, project.compile.dependencies].flatten
+              sort_dependencies(project.compile.dependencies, deps, project.path_to(''))
               info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -499,6 +490,8 @@ For more configuration options see IvyConfig.
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
             if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
               project.test.with [deps, project.test.dependencies].flatten
+              sort_dependencies(project.test.dependencies, deps, project.path_to(''))
+              sort_dependencies(project.test.compile.dependencies, deps, project.path_to(''))
               info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
@@ -515,6 +508,35 @@ For more configuration options see IvyConfig.
 
           [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
             task.prerequisites.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
+          end
+        end
+
+        # Sorts the dependencies in #deps replacing the old order.
+        # Sorting is done as follows:
+        # 1. all dependencies that belong to the project identified by #project_path,
+        #    .i.e. instrumented-classes, resources in the order the are contained in the array
+        # 2. all ivy dependencies identified by #ivy_deps
+        # 3. all dependencies added automatically by buildr
+        def sort_dependencies(deps, ivy_deps, project_path)
+          old_deps = deps.dup
+          belongs_to_project = /#{project_path}/
+          deps.sort! do |a, b|
+            a_belongs_to_project = belongs_to_project.match(a.to_s)
+            b_belongs_to_project = belongs_to_project.match(b.to_s)
+            a_ivy = ivy_deps.member? a
+            b_ivy = ivy_deps.member? b
+
+            if a_belongs_to_project && !b_belongs_to_project
+              -1
+            elsif !a_belongs_to_project && b_belongs_to_project
+              1
+            elsif a_ivy && !b_ivy
+              -1
+            elsif !a_ivy && b_ivy
+              1
+            else
+              old_deps.index(a) <=> old_deps.index(b)
+            end
           end
         end
 

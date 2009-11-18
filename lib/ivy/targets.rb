@@ -15,7 +15,6 @@ require 'ivy/retrieve'
 require 'ivy/publish'
 require 'ivy/report'
 require 'ivy/buildlist'
-require 'ivy/to_ivy_file'
 
 =begin
 finished
