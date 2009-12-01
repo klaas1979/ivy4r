@@ -69,10 +69,13 @@ module Buildr
       # Returns the artifacts for given configurations as array
       # this is a post resolve task.
       # the arguments are checked for the following:
-      # 1. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
-      # 2. if not exactly two arrays all args are used as confs
+      # 1. if an Hash is given :conf is used for confs and :type is used for types
+      # 2. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
+      # 3. if not exactly two arrays all args are used as confs
       def deps(*args)
-        if args.size == 2 && args[0].kind_of?(Array) && args[1].kind_of?(Array)
+        if args.size == 1 && args[0].kind_of?(Hash)
+          confs, types = [args[0][:conf]].flatten, [args[0][:type]].flatten
+        elsif args.size == 2 && args[0].kind_of?(Array) && args[1].kind_of?(Array)
           confs, types = args[0], args[1]
         else
           confs, types = args.flatten, []
@@ -545,7 +548,7 @@ For more configuration options see IvyConfig.
           pkgs.each do |pkg|
             name = "#{pkg.name}manifest"
             task = project.task name => project.ivy.file_project.task('ivy:resolve') do
-              pkg.with :manifest => project.manifest.merge(project.ivy.manifest)
+              pkg.with :manifest => pkg.manifest.merge(project.manifest.merge(project.ivy.manifest))
               info "Adding manifest entries to package '#{pkg.name}'"
             end
             project.task :build => task

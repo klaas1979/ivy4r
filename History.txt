@@ -1,3 +1,15 @@
+=== 0.9.5 / 2009-12-01
+
+* Bugfix for manifest handling in packages. The custom set manifest informations are not lost,
+  ivy informations for manifest are merged into the configured manifest.
+
+=== 0.9.4 / 2009-12-01
+
+* ivy.deps for buildr supports three argument types:
+    1. if an Hash is given :conf is used for confs and :type is used for types
+    2. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
+    3. if not exactly two arrays all args are used as confs
+
 === 0.9.3 / 2009-11-18
 
 * Sorting of compile and test dependencies to prevent problems with old jars that are added by
