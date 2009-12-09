@@ -1,3 +1,10 @@
+=== 0.9.6 / 2009-12-09
+
+* Support for JRuby access to underlying java objects of ivy. Require 'ivy4r_java_extensions'
+  instead of 'ivy4r'. The Ivy4r#ivy_instance returns a new ivy instance configured with the same
+  settings file as used in the underlying ant process. Note that configuration via URL is not
+  supported.
+
 === 0.9.5 / 2009-12-01
 
 * Bugfix for manifest handling in packages. The custom set manifest informations are not lost,

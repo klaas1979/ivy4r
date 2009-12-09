@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.9.5'
+  VERSION = '0.9.6'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -56,6 +56,9 @@ class Ivy4r
   # To provide a custom __antwrap__ to use instead of default one
   attr_writer :ant
 
+  # Access to ivy settings set via configure or settings method.
+  attr_accessor :settings_file
+
   # Initalizes ivy4r with optional ant wrapper object. Sets ant home dir and ivy lib dir
   # to default values from __Ivy4rJars__ gem.
   def initialize(ant = nil)
@@ -73,12 +76,18 @@ class Ivy4r
 
   # Calls the __settings__ ivy target with given parameters.
   def settings(*params)
-    Ivy::Settings.new(ant).execute(*params)
+    settings_task = Ivy::Settings.new(ant)
+    result = settings_task.execute(*params)
+    @settings_file = settings_task.params[:file]
+    result
   end
 
   # Calls the __configure__ ivy target with given parameters.
   def configure(*params)
-    Ivy::Configure.new(ant).execute(*params)
+    configure_task = Ivy::Configure.new(ant)
+    result = configure_task.execute(*params)
+    @settings_file = configure_task.params[:file]
+    result
   end
 
   # Calls the __info__ ivy target with given parameters and returns info as hash.
@@ -207,6 +216,7 @@ class Ivy4r
     ant.taskdef :name => "ivy_cleancache", :classname => "org.apache.ivy.ant.IvyCleanCache", :classpathref => "ivy.lib.path", :loaderRef => 'ivy.lib.path.loader'
   end
 
+  # Returns the ant properties, note that this are java objects.
   def ant_properties
     ant.project.properties
   end
