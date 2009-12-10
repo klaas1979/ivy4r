@@ -1,3 +1,7 @@
+=== 0.9.7 / 2009-12-10
+
+* Fixed missing files in gem.
+
 === 0.9.6 / 2009-12-09
 
 * Support for JRuby access to underlying java objects of ivy. Require 'ivy4r_java_extensions'
