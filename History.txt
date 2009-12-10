@@ -1,4 +1,4 @@
-=== 0.9.8 / 2009-12-10
+=== 0.9.9 / 2009-12-10
 
 * Fixed setting of ant properties, properties are really sets and cannot be overwritten afterwards.
 

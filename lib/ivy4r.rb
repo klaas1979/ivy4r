@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.9.8'
+  VERSION = '0.9.9'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -224,7 +224,6 @@ end
 
 AntPropertyHelper = Struct.new(:ant, :ant_properties) do #:nodoc:
   def []=(name, value) #:nodoc:
-    raise "Property '#{name}' already set could not set it to #{value.inspect}'" if ant_properties.find { |p| name === p[0] }
     ant.property :name => name, :value => value
   end
 
