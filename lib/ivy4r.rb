@@ -35,7 +35,7 @@ is
   }
 =end
 class Ivy4r
-  VERSION = '0.9.7'
+  VERSION = '0.9.8'
 
   # Set the ant home directory to load ant classes from if no custom __antwrap__ is provided
   # and the default provided ant version 1.7.1 should not be used.
@@ -164,7 +164,7 @@ class Ivy4r
   # [set] <tt>property['name'] = value</tt> sets the ant property with name to given value no overwrite
   # [get] <tt>property[matcher]</tt> gets property that is equal via case equality operator (<tt>===</tt>)
   def property
-    AntPropertyHelper.new(ant_properties)
+    AntPropertyHelper.new(ant, ant_properties)
   end
 
   # Returns the __antwrap__ instance to use for all internal calls creates a default
@@ -222,12 +222,14 @@ class Ivy4r
   end
 end
 
-AntPropertyHelper = Struct.new(:ant_properties) do #:nodoc:
+AntPropertyHelper = Struct.new(:ant, :ant_properties) do #:nodoc:
   def []=(name, value) #:nodoc:
-    ant_properties[name] = value
+    raise "Property '#{name}' already set could not set it to #{value.inspect}'" if ant_properties.find { |p| name === p[0] }
+    ant.property :name => name, :value => value
   end
 
   def [](matcher) #:nodoc:
-    ant_properties.find {|p| matcher === p[0] }[1]
+    property = ant_properties.find {|p| matcher === p[0] }
+    property ? property[1] : nil
   end
 end

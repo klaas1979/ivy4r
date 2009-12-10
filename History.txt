@@ -1,3 +1,7 @@
+=== 0.9.8 / 2009-12-10
+
+* Fixed setting of ant properties, properties are really sets and cannot be overwritten afterwards.
+
 === 0.9.7 / 2009-12-10
 
 * Fixed missing files in gem.
