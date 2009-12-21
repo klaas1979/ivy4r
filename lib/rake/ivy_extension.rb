@@ -16,56 +16,82 @@ module Rake
 
       # Returns the resolve result
       attr_reader :resolved
+      
+      attr_reader :post_resolve_tasks
 
       # Store the current rake application and initialize ivy ant wrapper
       def initialize(application)
         @application = application
         @extension_dir = File.join("#{@application.original_dir}", "#{ENV['IVY_EXT_DIR']}")
+        @post_resolve_tasks = []
       end
 
       # Returns the correct ant instance to use.
-      def ant
-        unless @ant
-          @ant = ::Ivy4r.new
-          @ant.lib_dir = lib_dir if lib_dir
-          @ant.project_dir = @extension_dir
+      def ivy4r
+        unless @ivy4r
+          @ivy4r = ::Ivy4r.new
+          @ivy4r.lib_dir = lib_dir if lib_dir
+          @ivy4r.project_dir = @extension_dir
         end
-        @ant
+        @ivy4r
       end
 
       # Returns the artifacts for given configurations as array
-      def deps(*confs)
-        configure
-        pathid = "ivy.deps." + confs.join('.')
-        ant.cachepath :conf => confs.join(','), :pathid => pathid
+      # this is a post resolve task.
+      # the arguments are checked for the following:
+      # 1. if an Hash is given :conf is used for confs and :type is used for types
+      # 2. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
+      # 3. if not exactly two arrays all args are used as confs
+      def deps(*args)
+        if args.size == 1 && args[0].kind_of?(Hash)
+          confs, types = [args[0][:conf]].flatten, [args[0][:type]].flatten
+        elsif args.size == 2 && args[0].kind_of?(Array) && args[1].kind_of?(Array)
+          confs, types = args[0], args[1]
+        else
+          confs, types = args.flatten, []
+        end
+        
+        [confs, types].each do |t|
+          t.reject! {|c| c.nil? || c.blank? }
+        end
+        
+        unless confs.empty?
+          pathid = "ivy.deps." + confs.join('.') + '.' + types.join('.')
+          params = {:conf => confs.join(','), :pathid => pathid}
+          params[:type] = types.join(',') unless types.nil? || types.size == 0
+
+          ivy4r.cachepath params
+        end
       end
 
       # Returns ivy info for configured ivy file.
       def info
-        ant.settings :id => 'ivy.info.settingsref'
-        ant.info :file => file, :settingsRef => 'ivy.info.settingsref'
+        ivy4r.settings :id => 'ivy.info.settingsref'
+        ivy4r.info :file => file, :settingsRef => 'ivy.info.settingsref'
       end
 
       # Configures the ivy instance with additional properties and loading the settings file if it was provided
       def configure
         unless @configured
-          ant.property['ivy.status'] = status
-          ant.property['ivy.home'] = home
-          properties.each {|key, value| ant.property[key.to_s] = value }
-          @configured = ant.settings :file => settings if settings
+          ivy4r.property['ivy.status'] = status
+          ivy4r.property['ivy.home'] = home
+          properties.each {|key, value| ivy4r.property[key.to_s] = value }
+          @configured = ivy4r.settings :file => settings if settings
         end
       end
 
       # Resolves the configured file once.
       def __resolve__
         unless @resolved
-          @resolved = ant.resolve :file => file
+          @resolved = ivy4r.resolve :file => file
+          post_resolve_tasks.each { |p| p.call(self) }
         end
+        @resolved
       end
 
       # Creates the standard ivy dependency report
       def report
-        ant.report :todir => report_dir
+        ivy4r.report :todir => report_dir
       end
 
       # Publishs the project as defined in ivy file if it has not been published already
@@ -75,7 +101,7 @@ module Rake
           options[:pubrevision] = revision if revision
           options[:status] = status if status
           options = publish_options * options
-          ant.publish options
+          ivy4r.publish options
           @published = true
         end
       end
@@ -98,7 +124,7 @@ module Rake
       # To set a different revision this method can be used in different ways.
       # 1. project.ivy.revision(revision) to set the revision directly
       # 2. project.ivy.revision { |ivy| [calculate revision] } use the block for dynamic
-      #    calculation of the revision. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of the revision. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def revision(*revision, &block)
         raise "Invalid call with parameters and block!" if revision.size > 0 && block
         if revision.empty? && block.nil?
@@ -123,7 +149,7 @@ module Rake
       # To set a different status this method can be used in different ways.
       # 1. project.ivy.status(status) to set the status directly
       # 2. project.ivy.status { |ivy| [calculate status] } use the block for dynamic
-      #    calculation of the status. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of the status. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def status(*status, &block)
         raise "Invalid call with parameters and block!" if status.size > 0 && block
         if status.empty? && block.nil?
@@ -148,7 +174,7 @@ module Rake
       # To set the options this method can be used in different ways.
       # 1. project.ivy.publish_options(options) to set the options directly
       # 2. project.ivy.publish_options { |ivy| [calculate options] } use the block for dynamic
-      #    calculation of options. You can access ivy4r via <tt>ivy.ant.[method]</tt>
+      #    calculation of options. You can access ivy4r via <tt>ivy.ivy4r.[method]</tt>
       def publish_options(*options, &block)
         raise "Invalid call with parameters and block!" if options.size > 0 && block
         if options.empty? && block.nil?
@@ -214,6 +240,35 @@ module Rake
       end
     end
 
+      # Adds given block as post resolve action that is executed directly after #resolve has been called.
+      # Yields this ivy config object into block.
+      # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>
+      def post_resolve(&block)
+        post_resolve_tasks << block if block
+      end
+
+      # Filter artifacts for given configuration with provided filter values, this is a post resolve
+      # task like #deps.
+      # <tt>project.ivy.filter('server', 'client', :include => /b.*.jar/, :exclude => [/a\.jar/, /other.*\.jar/])</tt>
+      def filter(*confs)
+        filter = confs.last.kind_of?(Hash) ? confs.pop : {}
+        unless (filter.keys - (TYPES - [:conf])).empty?
+          raise ArgumentError, "Invalid filter use :include and/or :exclude only: given #{filter.keys.inspect}"
+        end
+        includes, excludes, types = filter[:include] || [], filter[:exclude] || [], filter[:type] || []
+
+        artifacts = deps(confs.flatten, types.flatten)
+        if artifacts
+          artifacts = artifacts.find_all do |lib|
+            lib = File.basename(lib)
+            includes = includes.reject {|i| i.nil? || i.blank? }
+            should_include = includes.empty? || includes.any? {|include| include === lib }
+            should_include && !excludes.any? {|exclude| exclude === lib}
+          end
+        end
+
+        artifacts
+      end
 
     class Tasks < ::Rake::TaskLib
       def initialize(ivy = nil, &block)
@@ -248,7 +303,7 @@ module Rake
 
           desc 'Clean the local Ivy cache and the local ivy repository'
           task :clean do
-            Rake.application.ivy.ant.clean
+            Rake.application.ivy.ivy4r.clean
           end
         end
       end

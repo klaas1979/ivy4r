@@ -1,3 +1,7 @@
+=== 0.9.10 / 2009-12-21
+
+* Better support for Rake targets using the deps mechanism from buildr support.
+
 === 0.9.9 / 2009-12-10
 
 * Fixed setting of ant properties, properties are really sets and cannot be overwritten afterwards.
