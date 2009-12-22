@@ -151,6 +151,12 @@ module Buildr
         ivy4r.report :todir => report_dir
       end
 
+      # Cleans the ivy cache
+      def cleancache
+        ivy4r.cleancache
+      end
+
+
       # Publishs the project as defined in ivy file if it has not been published already
       def __publish__
         if @base_ivy
@@ -636,15 +642,15 @@ For more configuration options see IvyConfig.
           IvyExtension.add_prod_libs_to_distributeables(project)
           IvyExtension.add_copy_tasks_for_publish(project)
 
-          task :clean do
-            # TODO This is redundant, refactor ivy_ant_wrap and this to use a single config object
-            info "Cleaning ivy reports"
-            rm_rf project.path_to(:reports, 'ivy')
-          end
-
           namespace 'ivy' do
             task :configure do
               project.ivy.configure
+            end
+            
+            task :clean => :configure do
+              # TODO This is redundant, refactor ivy_ant_wrap and this to use a single config object
+              rm_rf project.path_to(:reports, 'ivy')
+              project.ivy.cleancache
             end
 
             task :resolve => "#{project.name}:ivy:configure" do
@@ -666,9 +672,8 @@ For more configuration options see IvyConfig.
     # Global targets that are not bound to a project
     namespace 'ivy' do
       task :clean do
-        info "Cleaning local ivy cache"
         Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-          project.ivy.ivy4r.clean
+          project.task('ivy:clean').invoke
         end
       end
 

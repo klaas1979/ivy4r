@@ -1,3 +1,7 @@
+=== 0.9.11 / 2009-12-22
+
+* Fix of the ivy:clean target to clean the ivy cache via the cleancache task.
+
 === 0.9.10 / 2009-12-21
 
 * Better support for Rake targets using the deps mechanism from buildr support.
