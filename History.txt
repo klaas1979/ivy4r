@@ -1,3 +1,8 @@
+=== 0.9.12 / 2010-01-21
+
+* Fix the problem with creation of packages where the additional ivy information has not been added
+  if "package :file 'x.type'" was used instead of "package :type".
+
 === 0.9.11 / 2009-12-22
 
 * Fix of the ivy:clean target to clean the ivy cache via the cleancache task.

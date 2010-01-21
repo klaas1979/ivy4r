@@ -550,7 +550,7 @@ For more configuration options see IvyConfig.
         end
 
         def add_manifest_to_distributeables(project)
-          pkgs = project.packages.find_all { |pkg| [:jar, :war, :ear].member? pkg.type }
+          pkgs = project.packages.find_all { |pkg| ['jar', 'war', 'ear'].member? pkg.type.to_s }
           pkgs.each do |pkg|
             name = "#{pkg.name}manifest"
             task = project.task name => project.ivy.file_project.task('ivy:resolve') do
@@ -562,7 +562,7 @@ For more configuration options see IvyConfig.
         end
 
         def add_prod_libs_to_distributeables(project)
-          pkgs = project.packages.find_all { |pkg| [:war].member? pkg.type }
+          pkgs = project.packages.find_all { |pkg| ['war'].member? pkg.type.to_s }
           pkgs.each do |pkg|
             task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
               includes = project.ivy.package_include
@@ -577,7 +577,7 @@ For more configuration options see IvyConfig.
             project.task :build => task
           end
 
-          pkgs = project.packages.find_all { |pkg| [:ear].member? pkg.type }
+          pkgs = project.packages.find_all { |pkg| ['ear'].member? pkg.type.to_s }
           pkgs.each do |pkg|
             task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
               includes = project.ivy.package_include
