@@ -300,7 +300,7 @@ module Buildr
       # for publishing use a hash with the +package+ as key and the newly mapped name as value. I.e.
       # <tt>ivy.name(package(:jar) => 'new_name_without_version_number.jar')</tt>
       # Note that this method is additive, a second call adds the names to the first.
-      def name(*publish_mappings)
+      def publish(*publish_mappings)
         if publish_mappings.empty?
           @publish_mappings ||= {}
         else
@@ -309,7 +309,11 @@ module Buildr
           self
         end
       end
-      alias_method :publish, :name
+      
+      def name(*args)
+        puts "name(*args) is deprecated use publish(*args)!"
+        publish(*args)
+      end
 
       # Sets the directory to publish artifacts from.
       def publish_from(*publish_dir)
