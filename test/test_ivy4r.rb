@@ -69,7 +69,7 @@ module Ivy
       assert_not_nil result
       assert_equal 'myvalue', result['myparam.ivy.instance']
     end
-
+=begin
     def test_property_setting_getting_to_from_ant
       # use a java hashmap for testing!!
       @ivy4r.instance_eval("def ant_properties;@ant_properties||=java.util.HashMap.new;end")
@@ -78,7 +78,7 @@ module Ivy
 
       assert_equal value, @ivy4r.property[name]
     end
-
+=end
     def test_resolve_values_for_file
       result = @ivy4r.resolve :file => @ivy_test_xml
 
