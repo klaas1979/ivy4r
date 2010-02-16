@@ -1,0 +1,177 @@
+=== 0.9.13 / 2010-02-16
+
+* Fix problems with Facets and ActiveSupport. We now only include the required core extensions,
+  not all of them.
+
+=== 0.9.12 / 2010-01-21
+
+* Fix the problem with creation of packages where the additional ivy information has not been added
+  if "package :file 'x.type'" was used instead of "package :type".
+
+=== 0.9.11 / 2009-12-22
+
+* Fix of the ivy:clean target to clean the ivy cache via the cleancache task.
+
+=== 0.9.10 / 2009-12-21
+
+* Better support for Rake targets using the deps mechanism from buildr support.
+
+=== 0.9.9 / 2009-12-10
+
+* Fixed setting of ant properties, properties are really sets and cannot be overwritten afterwards.
+
+=== 0.9.7 / 2009-12-10
+
+* Fixed missing files in gem.
+
+=== 0.9.6 / 2009-12-09
+
+* Support for JRuby access to underlying java objects of ivy. Require 'ivy4r_java_extensions'
+  instead of 'ivy4r'. The Ivy4r#ivy_instance returns a new ivy instance configured with the same
+  settings file as used in the underlying ant process. Note that configuration via URL is not
+  supported.
+
+=== 0.9.5 / 2009-12-01
+
+* Bugfix for manifest handling in packages. The custom set manifest informations are not lost,
+  ivy informations for manifest are merged into the configured manifest.
+
+=== 0.9.4 / 2009-12-01
+
+* ivy.deps for buildr supports three argument types:
+    1. if an Hash is given :conf is used for confs and :type is used for types
+    2. if exactly two arrays are given args[0] is used for confs and args[1] is used for types
+    3. if not exactly two arrays all args are used as confs
+
+=== 0.9.3 / 2009-11-18
+
+* Sorting of compile and test dependencies to prevent problems with old jars that are added by
+  buildr automatically, i.e. log4j-1.2.9 for cobertura or JUnit 4.4 if tests are using a newer version.
+  The sort order:
+  1. all project dependencies as classes, resources and this like in the order the are contained in path
+  2. all ivy dependencies
+  3. all dependencies added by buildr to the targets
+* Deleted 'to_ivy_file' functionality because it was not working as expected. The function used the
+  wrong ivy context and was not able to resolve all variables within the file from the correct ivy context.
+
+=== 0.9.2 / 2009-11-16
+
+* Added new method to generate an ivy file from a resolved module descriptor, via the java
+  method ModuleDescriptor.toIvyFile(java.io.File). This is only working in jruby, because
+  the method is not called via Antwrap!
+* Added support for buildr configuration to call 'to_ivy_file' to generate ivy file from resolved
+  module descriptor, i.e. using 'ivy.to_ivy_file :file => 'output.file', :overwrite => true'
+
+=== 0.9.1 / 2009-11-16
+
+* Fixed bug that 'type' was not working for EAR
+
+=== 0.9.0 / 2009-11-16
+
+* Add a new configuration option for compile, test and package with name 'type'. The type can
+  be used as defined in ivy to only get artifacts of given type(s). One or more types can be
+  set as an array to this option. If no type is given all artifacts are retrieved.
+
+=== 0.8.1 / 2009-11-12
+
+* the project version is NOT set anymore by the the 'before_define' of the extension. The reason
+  for this are problems with ivy files that contain external references (i.e. include within the conf
+  block). The info task used for this needs more configuration information to work properly so this
+  feature is removed and the user must do it herself.
+   * In our projects we just moved the defintion to a different extension that configures more stuff
+     before setting the version and group:
+     before_define do |project|
+          if project.parent.nil? && project.ivy.enabled?
+            # do more configuration here prior setting the versions
+            info = project.ivy.info
+            project.version = info['ivy.revision']
+            project.group = "#{info['ivy.organisation']}.#{info['ivy.module']}"
+          end
+        end
+    * As an alternative you can set the group and version manually in the build file as it is usally done
+      in buildr.
+
+=== 0.8.0 / 2009-10-19
+
+* Moved to gemcutter for hosting of gems 'gem install gemcutter' add it as primary location and you
+  can install gems as before
+
+=== 0.7.3 / 2009-09-15
+
+* Renamed +ant+ to +ivy4r+ in buildr extension to make more clear what this object does. It is accesible
+  via call to +project.ivy.ivy4r+, use it in post_resolve or other places where the low level
+  ivy functions are needed in any way.
+* Added access to buildr_extension to get the configured mappings for artifacts to ivy publish names.
+  I.e. configured +ivy.publish package(:jar) => 'name.jar'
+  access this hash via +ivy.publish_mappings+
+
+=== 0.7.2 / 2009-09-08
+
+* Fix bug for creating EARs. The package dependencies are added into the root directory
+  of the EAR.
+
+=== 0.7.1 / 2009-08-24
+
+* Fix bug that manual added dependencies are overwritten for package task
+  issue 1: http://github.com/klaas1979/ivy4r/issues#issue/1
+* possible to add manual dependencies for compile and test as for package
+
+=== 0.7.0 / 2009-07-20
+
+* It is possible to register +post_resolve+ actions via blocks:
+  ivy.post_resolve {...}
+* support for generic configuration syntax via +method_missing+:
+  Any method combination of TARGETS [:compile, :test, :package] and TYPES [:conf, :include, :exclude] is valid.
+  It is possible to set all confs at once:
+  +ivy.conf :compile => 'conf', :package => 'other', :test => ['still', 'other']
+  Or to set the complete package options:
+  +ivy.package :conf => 'prod', :include => /includepattern/, :exclude => /excludepattern/+
+  Or to set a specific value via a complete call like:
+  +ivy.compile_conf [...] or ivy.conf_test [...] or ivy.package.include [...]
+* more include/exclude possibilities, support to include and exclude for compile and test targets using
+  +ivy.include :compile => [pattern list]+ or +ivy.exclude+
+* small refactorings
+
+=== 0.6.0 / 2009-07-08
+
+* added support for the +ide+ targets +eclipse+, +idea+ and +idea7x+
+* gem needs +facets+
+
+=== 0.5.3 / 2009-06-24
+
+* bugfixes
+
+=== 0.5.2 / 2009-06-24
+
+* bugfixes
+
+=== 0.5.1 / 2009-06-24
+
+* small improvements in rakefile (execute test for some targets)
+* publish to rubyforge "hamburg.rb"
+
+=== 0.5.0 / 2009-06-23
+
+* use ivy4r-jars to get needed jars from to separate the ruby source from the dependencies
+  and make the gem smaller.
+
+=== 0.4.0 / 2009-06-23
+
+* added rake/ivy_extension similar to buildr/ivy_extension to help use ivy4r in rake
+
+=== 0.3.0 / 2009-06-20
+
+* added ant*.jar to gem so that user does not need to have a local ant installation
+
+=== 0.2.0 / 2009-06-18
+
+* added the Buildr ivy_extension to include ivy in buildr for dependency managment
+* small improvements in documentation
+
+
+=== 0.1.0 / 2009-06-17
+
+* initial release
+  * support for nearly all basic IVY Ant targets
+  * basic validation of parameters
+
