@@ -1,4 +1,7 @@
-require 'facets'
+require 'facets/blank'
+require 'facets/to_hash'
+require 'facets/hash/op'
+require 'facets/hash/update_values'
 
 module Ivy
 

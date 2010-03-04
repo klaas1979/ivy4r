@@ -1,3 +1,8 @@
+=== 0.9.13 / 2010-02-16
+
+* Fix problems with Facets and ActiveSupport. We now only include the required core extensions,
+  not all of them.
+
 === 0.9.12 / 2010-01-21
 
 * Fix the problem with creation of packages where the additional ivy information has not been added

@@ -31,4 +31,9 @@ task :gemspec => :test
 desc "Tests, releases and publishs docs to rubyforge"
 task :release_and_publish => [:test, :release, :publish_docs]
 
+desc "Build gem and publish to gem server"
+task :build_and_publish => :build do
+  exec "gem push_to_blau"
+end
+
 # vim: syntax=ruby
