@@ -1,2 +1,7 @@
+VERSION
+doc
+.source_index
+*~
+nbproject
 pkg
-
+jars/*.jar
