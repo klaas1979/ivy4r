@@ -598,21 +598,19 @@ For more configuration options see IvyConfig.
         end
 
         def add_copy_tasks_for_publish(project)
-          if project.ivy.own_file?
-            Buildr.projects.each do |current|
-              current.packages.each do |pkg|
-                target_file = current.ivy.name[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
-                taskname = current.path_to(project.ivy.publish_from, target_file)
-                if taskname != pkg.name
-                  project.file taskname => pkg.name do
-                    verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
-                    FileUtils.mkdir File.dirname(taskname) unless File.directory?(File.dirname(taskname))
-                    FileUtils.cp pkg.name, taskname
-                  end
-                end
-                project.task 'ivy:publish' => taskname
+          ivy_project = project.ivy.file_project
+
+          project.packages.each do |pkg|
+            target_file = project.ivy.publish[pkg] || ivy_project.ivy.publish[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
+            taskname = ivy_project.path_to(ivy_project.ivy.publish_from, target_file)
+            if taskname != pkg.name
+              ivy_project.file taskname => pkg.name do
+                verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
+                FileUtils.mkdir File.dirname(taskname) unless File.directory?(File.dirname(taskname))
+                FileUtils.cp pkg.name, taskname
               end
             end
+            ivy_project.task 'ivy:publish' => taskname
           end
         end
       end
