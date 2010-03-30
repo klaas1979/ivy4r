@@ -5,7 +5,15 @@ module Buildr
     
     class << self
       def setting(*keys)
-        setting = Buildr.settings.build['ivy']
+        find_setting(Buildr.settings.build['ivy'], *keys)
+      end
+      
+      def user_setting(*keys)
+       find_setting(Buildr.settings.user['ivy'], *keys)
+      end
+      
+      private
+      def find_setting(setting, *keys)
         keys.each { |key| setting = setting[key] unless setting.nil? }
         setting
       end
@@ -70,12 +78,12 @@ module Buildr
       # Returns if ivy result caching is enabled via build or user properties or by existence of the
       # marker file.
       def caching_enabled?
-        Buildr.settings.user['ivy']['caching.enabled'] || Ivy.setting('caching.enabled') || File.exists?(caching_marker)
+        Ivy.user_setting('caching.enabled') || Ivy.setting('caching.enabled') || File.exists?(caching_marker)
       end
       
       # Returns the use ivy result caching marker file
       def caching_marker
-        project.path_to('use_ivy_caching')
+        @project.path_to('use_ivy_caching')
       end
       
       # Returns the dir to store ivy caching results in.

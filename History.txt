@@ -1,3 +1,6 @@
+=== 0.10.2 / 2010-03-30
+  * Fixed nil access exception for undefined user settings of type 'ivy'
+
 === 0.10.1 / 2010-03-30
   * Some fixes for the rake ivy result caching.
   * Renamed the targets from ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache
