@@ -1,9 +1,31 @@
-=== 0.9.14 / 2010-03-16
+=== 0.10.0 / 2010-03-30
 
-* Fix for circular build dependency errors in buildr thanks to Pepijn Van Eeckhoudt for the patch.
-  The culprit is the call to Buildr.projects in add_copy_tasks_for_publish. This can cause a call
-  to project.invoke on the project being defined itself. Buildr.projects should not be called from
-  before/after define callbacks as Pepijn found out from the Buildr developers.
+* Add caching support to ivy4r. Ivy4r has now an optional parameter to a caching directory where it
+  stores results from calls to the tasks for each parameter set. If caching is enabled and a call
+  with the same parameters is done the cached result is used instead of executing the task again. This
+  should speed up local development because long running tasks like "ivy:resolve" are cached.
+  Caching can be enabled in buildr with:
+  * add this to your build.yaml or the [home]/.buildr/settings.yaml:
+  	ivy:
+  		caching.enabled: true
+  * add a marker file to your project under the path project.path_to('use_ivy_caching') Note that this is
+    a marker file only the existence of the file is checked not the content!! If the file exists caching
+    will be used!
+  
+
+=== 0.9.15 / 2010-03-20
+
+* Revert changes from 0.9.14 because the fix does not work in all environments. Use the old code again
+  till a fix is found that circumvents the circular dependency issue and keeps the functionality of the tasks.
+
+=== 0.9.14 / 2010-03-14
+
+* Do not use Buildr.projects because of a circular dependency issue with the new buildr thanks to
+  Pepijn Van Eeckhoudt: He has bumped into an issue in the ivy4r buildr extension that triggers
+  circular dependency exceptions. The culprit is the call to Buildr.projects in add_copy_tasks_for_publish.
+  This can cause a call to project.invoke on the project being defined itself. He has checked with the
+  buildr devs and they told me that Buildr.projects should probably not be called from before/after
+  define callbacks.
 
 === 0.9.13 / 2010-02-16
 

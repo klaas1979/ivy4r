@@ -1,7 +1,6 @@
 = ivy4r
 
 * http://github.com/klaas1979/ivy4r/tree/master
-* http://hamburgrb.rubyforge.org/
 
 == DESCRIPTION:
 
@@ -9,12 +8,14 @@ Apache Ivy dependency manager wrapper for ruby (see {Apache Ivy}[http://ant.apac
 Use {Apache Ivy}[http://ant.apache.org/ivy/index.html] via a ruby wrapper without the need to use Apache Ant.
 The wrapper uses Antwrap[http://antwrap.rubyforge.org/] to interface with Ivy.
 
-Includes a Extension for Buildr[http://buildr.apache.org/] to use {Apache Ivy}[http://ant.apache.org/ivy/index.html]
-for dependency management.
+Includes a Extension for Buildr[http://buildr.apache.org/] and Rake[http://rake.rubyforge.org] to use
+{Apache Ivy}[http://ant.apache.org/ivy/index.html] for dependency management.
 
 == FEATURES/PROBLEMS:
 
-Supports most standard Ivy Ant targets via Antwrap.
+Supports most standard Ivy Ant targets via Antwrap. Provides a caching feature so that long running ivy tasks
+like resolve can be cached and are not rerun for local builds. For more information about caching see the History.txt
+and checkout the source of buildr/ivy_extension.rb and rake/ivy_extension.rb.
 
 === Supported Ivy targets:
 * info
@@ -48,11 +49,19 @@ Supports most standard Ivy Ant targets via Antwrap.
 * cachefileset
 * var
 
+=== Caching of Ivy results:
+For Buildr the targets ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache have been added.
+Additionally the result cache can be enabled via the build.yaml or the global buildr settings.yaml by setting
+the variable "ivy: caching.enabled: true".
+
+For Rake the targets ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache have been added as
+well. For Rake there is no other way to enable the caching beside this targets.
+
 == SYNOPSIS:
 
   To init a new Ivy4r instance set the ANT_HOME and the Ivy lib dir
     ivy4r = Ivy4r.new
-    ivy4r.ant_home = 'PATH TO YOUR ANTHME'
+    ivy4r.ant_home = 'PATH TO YOUR ANTHOME'
     ivy4r.lib_dir = 'PATH TO IVY LIB DIR'
   as an alternative to setting the ANT_HOME you can set an +Antwrap+ instance directly:
     ivy4r.ant = Buildr.ant('ivy')

@@ -2,7 +2,7 @@ require 'ivy4r'
 
 module Buildr
   module Ivy
-
+    
     class << self
       def setting(*keys)
         setting = Buildr.settings.build['ivy']
@@ -14,14 +14,14 @@ module Buildr
     class IvyConfig
       TARGETS = [:compile, :test, :package]
       TYPES = [:conf, :type, :include, :exclude]
-
+      
       attr_accessor :extension_dir, :resolved
-
+      
       attr_reader :post_resolve_task_list
       
       # Hash of all artifacts to publish with mapping from artifact name to ivy publish name
       attr_reader :publish_mappings
-
+      
       # Store the current project and initialize ivy ant wrapper
       def initialize(project)
         @project = project
@@ -36,22 +36,28 @@ module Buildr
           |hash, key| hash[key] = {}
         end
       end
-
+      
       def enabled?
         @enabled ||= Ivy.setting('enabled') || true
       end
-
+      
       def own_file?
         @own_file ||= File.exists?(@project.path_to(file))
       end
-
+      
       # Returns the correct ivy4r instance to use, if project has its own ivy file uses the ivy file
       # of project, if not uses the ivy file of parent project.
       # Use this for low-level access to ivy functions as needed, i.e. in +post_resolve+
       def ivy4r
         unless @ivy4r
           if own_file?
-            @ivy4r = ::Ivy4r.new(@project.ant('ivy'))
+            @ivy4r = ::Ivy4r.new do |i|
+              i.ant = @project.ant('ivy')
+              if caching_enabled?
+                i.cache_dir = result_cache_dir
+                @project.send(:info, "Using IVY result caching in dir '#{i.cache_dir}'")
+              end
+            end
             @ivy4r.lib_dir = lib_dir if lib_dir
             @ivy4r.project_dir = @extension_dir
           else
@@ -60,12 +66,30 @@ module Buildr
         end
         @ivy4r
       end
-
+      
+      # Returns if ivy result caching is enabled via build or user properties or by existence of the
+      # marker file.
+      def caching_enabled?
+        Buildr.settings.user['ivy']['caching.enabled'] || Ivy.setting('caching.enabled') || File.exists?(caching_marker)
+      end
+      
+      # Returns the use ivy result caching marker file
+      def caching_marker
+        project.path_to('use_ivy_caching')
+      end
+      
+      # Returns the dir to store ivy caching results in.
+      def result_cache_dir
+        dir = @project.path_to('target', 'ivycaching')
+        FileUtils.mkdir_p dir
+        dir
+      end
+      
       # Returns name of the project the ivy file belongs to.
       def file_project
         own_file? ? @project : @base_ivy.file_project
       end
-
+      
       # Returns the artifacts for given configurations as array
       # this is a post resolve task.
       # the arguments are checked for the following:
@@ -89,11 +113,11 @@ module Buildr
           pathid = "ivy.deps." + confs.join('.') + '.' + types.join('.')
           params = {:conf => confs.join(','), :pathid => pathid}
           params[:type] = types.join(',') unless types.nil? || types.size == 0
-
+          
           ivy4r.cachepath params
         end
       end
-
+      
       # Returns ivy info for configured ivy file using a new ivy4r instance.
       def info
         if @base_ivy
@@ -105,7 +129,7 @@ module Buildr
           result
         end
       end
-
+      
       # Configures the ivy instance with additional properties and loading the settings file if it was provided
       def configure
         if @base_ivy
@@ -119,7 +143,7 @@ module Buildr
           end
         end
       end
-
+      
       # Resolves the configured file once.
       def __resolve__
         if @base_ivy
@@ -132,7 +156,7 @@ module Buildr
           end
         end
       end
-
+      
       # Returns the additional infos for the manifest file.
       def manifest
         if @base_ivy
@@ -145,18 +169,18 @@ module Buildr
           }
         end
       end
-
+      
       # Creates the standard ivy dependency report
       def report
         ivy4r.report :todir => report_dir
       end
-
+      
       # Cleans the ivy cache
       def cleancache
         ivy4r.cleancache
       end
-
-
+      
+      
       # Publishs the project as defined in ivy file if it has not been published already
       def __publish__
         if @base_ivy
@@ -170,11 +194,11 @@ module Buildr
           end
         end
       end
-
+      
       def home
         @ivy_home_dir ||= Ivy.setting('home.dir') || "#{@extension_dir}/ivy-home"
       end
-
+      
       def lib_dir
         @lib_dir ||= Ivy.setting('lib.dir')
       end
@@ -182,11 +206,11 @@ module Buildr
       def settings
         @settings ||= Ivy.setting('settings.file') || "#{@extension_dir}/ant-scripts/ivysettings.xml"
       end
-
+      
       def file
         @ivy_file ||= Ivy.setting('ivy.file') || 'ivy.xml'
       end
-
+      
       # Sets the revision to use for the project, this is useful for development revisions that
       # have an appended timestamp or any other dynamic revisioning.
       #
@@ -211,7 +235,7 @@ module Buildr
           self
         end
       end
-
+      
       # Sets the status to use for the project, this is useful for custom status handling
       # like integration, alpha, gold.
       #
@@ -236,7 +260,7 @@ module Buildr
           self
         end
       end
-
+      
       # Sets the publish options to use for the project. The options are merged with the default
       # options including value set via #publish_from and overwrite all of them.
       #
@@ -264,7 +288,7 @@ module Buildr
           end
         end
       end
-
+      
       # Sets the additional properties for the ivy process use a Hash with the properties to set.
       def properties(*properties)
         if properties.empty?
@@ -275,7 +299,7 @@ module Buildr
           self
         end
       end
-
+      
       # Sets the local repository for ivy files
       def local_repository(*local_repository)
         if local_repository.empty?
@@ -291,7 +315,7 @@ module Buildr
           self
         end
       end
-
+      
       # :call-seq:
       # ivy.publish(package(:jar) => 'new_name_without_version_number.jar')
       # #deprecated! ivy.name(package(:jar) => 'new_name_without_version_number.jar')
@@ -314,7 +338,7 @@ module Buildr
         puts "name(*args) is deprecated use publish(*args)!"
         publish(*args)
       end
-
+      
       # Sets the directory to publish artifacts from.
       def publish_from(*publish_dir)
         if publish_dir.empty?
@@ -330,7 +354,7 @@ module Buildr
           self
         end
       end
-
+      
       # Sets the directory to create dependency reports in.
       def report_dir(*report_dir)
         if report_dir.empty?
@@ -346,14 +370,14 @@ module Buildr
           self
         end
       end
-
+      
       # Adds given block as post resolve action that is executed directly after #resolve has been called.
       # Yields this ivy config object into block.
       # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>
       def post_resolve(&block)
         post_resolve_tasks << block if block
       end
-
+      
       # Filter artifacts for given configuration with provided filter values, this is a post resolve
       # task like #deps.
       # <tt>project.ivy.filter('server', 'client', :include => /b.*.jar/, :exclude => [/a\.jar/, /other.*\.jar/])</tt>
@@ -363,7 +387,7 @@ module Buildr
           raise ArgumentError, "Invalid filter use :include and/or :exclude only: given #{filter.keys.inspect}"
         end
         includes, excludes, types = filter[:include] || [], filter[:exclude] || [], filter[:type] || []
-
+        
         artifacts = deps(confs.flatten, types.flatten)
         if artifacts
           artifacts = artifacts.find_all do |lib|
@@ -373,10 +397,10 @@ module Buildr
             should_include && !excludes.any? {|exclude| exclude === lib}
           end
         end
-
+        
         artifacts
       end
-
+      
       # :call-seq:
       # for types:
       #   project.ivy.include(:compile => [/\.jar/, /\.gz/], :package => 'cglib.jar')
@@ -419,41 +443,41 @@ module Buildr
         t = targets.to_s.split('_').find { |target| TARGETS.member? target.to_sym }
         t ? t.to_sym : nil
       end
-
+      
       def type(types)
         t = types.to_s.split('_').find { |type| TYPES.member? type.to_sym }
         t ? t.to_sym : nil
       end
-
+      
       def valid_config_call?(method_name)
         valid_calls = []
         TYPES.each do|type|
-          TARGETS.each do|target|
-            valid_calls << type.to_s << target.to_s << "#{type}_#{target}" << "#{target}_#{type}"
-          end
-        end
-        valid_calls.member? method_name.to_s
-      end
-
-      # Sets a variable for given basename and type to given values. If values are empty returns the
-      # current value.
-      # I.e. <tt>handle_variable(:package, :include, /blua.*\.jar/, /da.*\.jar/)</tt>
-      def handle_variable(target, type, *values)
-        unless TARGETS.member?(target) && TYPES.member?(type)
-          raise ArgumentError, "Unknown config value for target #{target.inspect} and type #{type.inspect}"
-        end
-        if values.empty?
-          @target_config[target][type] ||= [Ivy.setting("#{target.to_s}.#{type.to_s}") || ''].flatten.uniq
-        else
-          @target_config[target][type] = [values].flatten.uniq
-          self
-        end
-      end
-
-      def post_resolve_tasks
-        @base_ivy ? @base_ivy.post_resolve_task_list : post_resolve_task_list
+        TARGETS.each do|target|
+        valid_calls << type.to_s << target.to_s << "#{type}_#{target}" << "#{target}_#{type}"
       end
     end
+    valid_calls.member? method_name.to_s
+  end
+  
+  # Sets a variable for given basename and type to given values. If values are empty returns the
+  # current value.
+  # I.e. <tt>handle_variable(:package, :include, /blua.*\.jar/, /da.*\.jar/)</tt>
+  def handle_variable(target, type, *values)
+    unless TARGETS.member?(target) && TYPES.member?(type)
+      raise ArgumentError, "Unknown config value for target #{target.inspect} and type #{type.inspect}"
+    end
+    if values.empty?
+      @target_config[target][type] ||= [Ivy.setting("#{target.to_s}.#{type.to_s}") || ''].flatten.uniq
+    else
+      @target_config[target][type] = [values].flatten.uniq
+      self
+    end
+  end
+  
+  def post_resolve_tasks
+    @base_ivy ? @base_ivy.post_resolve_task_list : post_resolve_task_list
+  end
+end
 
 =begin rdoc
 The Ivy Buildr extension adding the new tasks for ivy.
@@ -475,227 +499,271 @@ To use ivy in a +buildfile+ do something like:
 
 For more configuration options see IvyConfig.
 =end
-    module IvyExtension
-      include Buildr::Extension
-
-      class << self
-
-        def add_ivy_deps_to_java_tasks(project)
-          resolve_target = project.ivy.file_project.task('ivy:resolve')
-          project.task :compiledeps => resolve_target do
-            includes = project.ivy.compile_include
-            excludes = project.ivy.compile_exclude
-            types = project.ivy.compile_type
-            confs = [project.ivy.compile_conf].flatten
-            if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
-              project.compile.with [deps, project.compile.dependencies].flatten
-              sort_dependencies(project.compile.dependencies, deps, project.path_to(''))
-              info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
-            end
-          end
-          
-          project.task :compile => "#{project.name}:compiledeps"
-
-          project.task :testdeps => resolve_target do
-            includes = project.ivy.test_include
-            excludes = project.ivy.test_exclude
-            types = project.ivy.test_type
-            confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
-            if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
-              project.test.with [deps, project.test.dependencies].flatten
-              sort_dependencies(project.test.dependencies, deps, project.path_to(''))
-              sort_dependencies(project.test.compile.dependencies, deps, project.path_to(''))
-              info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
-            end
-          end
-          project.task "test:compile" => "#{project.name}:testdeps"
-
-          project.task :javadocdeps => resolve_target do
-            confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
-            if deps = project.ivy.deps(confs)
-              project.javadoc.with deps
-              info "Ivy adding javadoc dependencies '#{confs.join(', ')}' to project '#{project.name}'"
-            end
-          end
-          project.task :javadoc => "#{project.name}:javadocdeps"
-
-          [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
-            task.prerequisites.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
+module IvyExtension
+  include Buildr::Extension
+  
+  class << self
+    
+    def add_ivy_deps_to_java_tasks(project)
+      resolve_target = project.ivy.file_project.task('ivy:resolve')
+      project.task :compiledeps => resolve_target do
+        includes = project.ivy.compile_include
+        excludes = project.ivy.compile_exclude
+        types = project.ivy.compile_type
+        confs = [project.ivy.compile_conf].flatten
+        if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
+          project.compile.with [deps, project.compile.dependencies].flatten
+          sort_dependencies(project.compile.dependencies, deps, project.path_to(''))
+          info "Ivy adding compile dependencies '#{confs.join(', ')}' to project '#{project.name}'"
+        end
+      end
+      
+      project.task :compile => "#{project.name}:compiledeps"
+      
+      project.task :testdeps => resolve_target do
+        includes = project.ivy.test_include
+        excludes = project.ivy.test_exclude
+        types = project.ivy.test_type
+        confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
+        if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
+          project.test.with [deps, project.test.dependencies].flatten
+          sort_dependencies(project.test.dependencies, deps, project.path_to(''))
+          sort_dependencies(project.test.compile.dependencies, deps, project.path_to(''))
+          info "Ivy adding test dependencies '#{confs.join(', ')}' to project '#{project.name}'"
+        end
+      end
+      project.task "test:compile" => "#{project.name}:testdeps"
+      
+      project.task :javadocdeps => resolve_target do
+        confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
+        if deps = project.ivy.deps(confs)
+          project.javadoc.with deps
+          info "Ivy adding javadoc dependencies '#{confs.join(', ')}' to project '#{project.name}'"
+        end
+      end
+      project.task :javadoc => "#{project.name}:javadocdeps"
+      
+      [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
+        task.prerequisites.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
+      end
+    end
+    
+    # Sorts the dependencies in #deps replacing the old order.
+    # Sorting is done as follows:
+    # 1. all dependencies that belong to the project identified by #project_path,
+    #    .i.e. instrumented-classes, resources in the order the are contained in the array
+    # 2. all ivy dependencies identified by #ivy_deps
+    # 3. all dependencies added automatically by buildr
+    def sort_dependencies(deps, ivy_deps, project_path)
+      old_deps = deps.dup
+      belongs_to_project = /#{project_path}/
+      deps.sort! do |a, b|
+        a_belongs_to_project = belongs_to_project.match(a.to_s)
+        b_belongs_to_project = belongs_to_project.match(b.to_s)
+        a_ivy = ivy_deps.member? a
+        b_ivy = ivy_deps.member? b
+        
+        if a_belongs_to_project && !b_belongs_to_project
+          -1
+        elsif !a_belongs_to_project && b_belongs_to_project
+          1
+        elsif a_ivy && !b_ivy
+          -1
+        elsif !a_ivy && b_ivy
+          1
+        else
+          old_deps.index(a) <=> old_deps.index(b)
+        end
+      end
+    end
+    
+    def add_manifest_to_distributeables(project)
+      pkgs = project.packages.find_all { |pkg| ['jar', 'war', 'ear'].member? pkg.type.to_s }
+      pkgs.each do |pkg|
+        name = "#{pkg.name}manifest"
+        task = project.task name => project.ivy.file_project.task('ivy:resolve') do
+          pkg.with :manifest => pkg.manifest.merge(project.manifest.merge(project.ivy.manifest))
+          info "Adding manifest entries to package '#{pkg.name}'"
+        end
+        project.task :build => task
+      end
+    end
+    
+    def add_prod_libs_to_distributeables(project)
+      pkgs = project.packages.find_all { |pkg| ['war'].member? pkg.type.to_s }
+      pkgs.each do |pkg|
+        task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
+          includes = project.ivy.package_include
+          excludes = project.ivy.package_exclude
+          types = project.ivy.package_type
+          confs = project.ivy.package_conf
+          if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
+            pkg.with :libs => [deps, pkg.libs].flatten
+            info "Adding production libs from conf '#{confs.join(', ')}' to WAR '#{pkg.name}' in project '#{project.name}'"
           end
         end
-
-        # Sorts the dependencies in #deps replacing the old order.
-        # Sorting is done as follows:
-        # 1. all dependencies that belong to the project identified by #project_path,
-        #    .i.e. instrumented-classes, resources in the order the are contained in the array
-        # 2. all ivy dependencies identified by #ivy_deps
-        # 3. all dependencies added automatically by buildr
-        def sort_dependencies(deps, ivy_deps, project_path)
-          old_deps = deps.dup
-          belongs_to_project = /#{project_path}/
-          deps.sort! do |a, b|
-            a_belongs_to_project = belongs_to_project.match(a.to_s)
-            b_belongs_to_project = belongs_to_project.match(b.to_s)
-            a_ivy = ivy_deps.member? a
-            b_ivy = ivy_deps.member? b
-
-            if a_belongs_to_project && !b_belongs_to_project
-              -1
-            elsif !a_belongs_to_project && b_belongs_to_project
-              1
-            elsif a_ivy && !b_ivy
-              -1
-            elsif !a_ivy && b_ivy
-              1
-            else
-              old_deps.index(a) <=> old_deps.index(b)
-            end
+        project.task :build => task
+      end
+      
+      pkgs = project.packages.find_all { |pkg| ['ear'].member? pkg.type.to_s }
+      pkgs.each do |pkg|
+        task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
+          includes = project.ivy.package_include
+          excludes = project.ivy.package_exclude
+          types = project.ivy.package_type
+          confs = project.ivy.package_conf
+          if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
+            pkg.add deps, :type => :lib, :path => ''
+            info "Adding production libs from conf '#{confs.join(', ')}' to EAR '#{pkg.name}' in project '#{project.name}'"
           end
         end
-
-        def add_manifest_to_distributeables(project)
-          pkgs = project.packages.find_all { |pkg| ['jar', 'war', 'ear'].member? pkg.type.to_s }
-          pkgs.each do |pkg|
-            name = "#{pkg.name}manifest"
-            task = project.task name => project.ivy.file_project.task('ivy:resolve') do
-              pkg.with :manifest => pkg.manifest.merge(project.manifest.merge(project.ivy.manifest))
-              info "Adding manifest entries to package '#{pkg.name}'"
-            end
-            project.task :build => task
-          end
-        end
-
-        def add_prod_libs_to_distributeables(project)
-          pkgs = project.packages.find_all { |pkg| ['war'].member? pkg.type.to_s }
-          pkgs.each do |pkg|
-            task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
-              includes = project.ivy.package_include
-              excludes = project.ivy.package_exclude
-              types = project.ivy.package_type
-              confs = project.ivy.package_conf
-              if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
-                pkg.with :libs => [deps, pkg.libs].flatten
-                info "Adding production libs from conf '#{confs.join(', ')}' to WAR '#{pkg.name}' in project '#{project.name}'"
-              end
-            end
-            project.task :build => task
-          end
-
-          pkgs = project.packages.find_all { |pkg| ['ear'].member? pkg.type.to_s }
-          pkgs.each do |pkg|
-            task = project.task "#{pkg.name}deps" => project.ivy.file_project.task('ivy:resolve') do
-              includes = project.ivy.package_include
-              excludes = project.ivy.package_exclude
-              types = project.ivy.package_type
-              confs = project.ivy.package_conf
-              if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
-                pkg.add deps, :type => :lib, :path => ''
-                info "Adding production libs from conf '#{confs.join(', ')}' to EAR '#{pkg.name}' in project '#{project.name}'"
-              end
-            end
-            project.task :build => task
-          end
-        end
-
-        def add_copy_tasks_for_publish(project)
-          ivy_project = project.ivy.file_project
-
-          project.packages.each do |pkg|
-            target_file = project.ivy.publish[pkg] || ivy_project.ivy.publish[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
-            taskname = ivy_project.path_to(ivy_project.ivy.publish_from, target_file)
+        project.task :build => task
+      end
+    end
+    
+    def add_copy_tasks_for_publish(project)
+      if project.ivy.own_file?
+        Buildr.projects.each do |current|
+          current.packages.each do |pkg|
+            target_file = current.ivy.name[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
+            taskname = current.path_to(project.ivy.publish_from, target_file)
             if taskname != pkg.name
-              ivy_project.file taskname => pkg.name do
+              project.file taskname => pkg.name do
                 verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
                 FileUtils.mkdir File.dirname(taskname) unless File.directory?(File.dirname(taskname))
                 FileUtils.cp pkg.name, taskname
               end
             end
-            ivy_project.task 'ivy:publish' => taskname
+            project.task 'ivy:publish' => taskname
           end
         end
       end
-
-      # Returns the +ivy+ configuration for the project. Use this to configure Ivy.
-      # see IvyConfig for more details about configuration options.
-      def ivy
-        @ivy_config ||= IvyConfig.new(self)
-      end
-
-      first_time do
-        namespace 'ivy' do
-          desc 'Resolves the ivy dependencies'
-          task :resolve
-
-          desc 'Publish the artifacts to ivy repository as defined by environment'
-          task :publish
-
-          desc 'Creates a dependency report for the project'
-          task :report
-      
-          desc 'Clean the local Ivy cache and the local ivy repository'
-          task :clean
-        end
-      end
-
-      after_define do |project|
-        if project.ivy.enabled?
-          IvyExtension.add_ivy_deps_to_java_tasks(project)
-          IvyExtension.add_manifest_to_distributeables(project)
-          IvyExtension.add_prod_libs_to_distributeables(project)
-          IvyExtension.add_copy_tasks_for_publish(project)
-
-          namespace 'ivy' do
-            task :configure do
-              project.ivy.configure
-            end
-            
-            task :clean => :configure do
-              # TODO This is redundant, refactor ivy_ant_wrap and this to use a single config object
-              rm_rf project.path_to(:reports, 'ivy')
-              project.ivy.cleancache
-            end
-
-            task :resolve => "#{project.name}:ivy:configure" do
-              project.ivy.__resolve__
-            end
-
-            task :report => "#{project.name}:ivy:resolve" do
-              project.ivy.report
-            end
-
-            task :publish => "#{project.name}:ivy:resolve" do
-              project.ivy.__publish__
-            end
-          end
-        end
-      end
-    end
-
-    # Global targets that are not bound to a project
-    namespace 'ivy' do
-      task :clean do
-        Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-          project.task('ivy:clean').invoke
-        end
-      end
-
-      task :resolve do
-        info "Resolving all distinct ivy files"
-        Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-          project.task('ivy:resolve').invoke
-        end
-      end
-      
-      task :publish => :package do
-        info "Publishing all distinct ivy files"
-        Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-          project.task('ivy:publish').invoke
-        end
-      end
-    end
-
-    class Buildr::Project # :nodoc:
-      include IvyExtension
     end
   end
+  
+  # Returns the +ivy+ configuration for the project. Use this to configure Ivy.
+  # see IvyConfig for more details about configuration options.
+  def ivy
+    @ivy_config ||= IvyConfig.new(self)
+  end
+  
+  first_time do
+    namespace 'ivy' do
+      desc 'Resolves the ivy dependencies'
+      task :resolve
+      
+      desc 'Publish the artifacts to ivy repository as defined by environment'
+      task :publish
+      
+      desc 'Creates a dependency report for the project'
+      task :report
+      
+      desc 'Clean the local Ivy cache and the local ivy repository'
+      task :clean
+      
+      desc 'Clean the local Ivy result cache to force execution of ivy targets'
+      task :cleanresultcache
+      
+      desc 'Enable the local Ivy result cache by creating the marker file'
+      task :enableresultcache
+      
+      desc 'Disable the local Ivy result cache by removing the marker file'
+      task :disableresultcache
+    end
+  end
+  
+  after_define do |project|
+    if project.ivy.enabled?
+      IvyExtension.add_ivy_deps_to_java_tasks(project)
+      IvyExtension.add_manifest_to_distributeables(project)
+      IvyExtension.add_prod_libs_to_distributeables(project)
+      IvyExtension.add_copy_tasks_for_publish(project)
+      
+      namespace 'ivy' do
+        task :configure do
+          project.ivy.configure
+        end
+        
+        task :clean => :configure do
+          # TODO This is redundant, refactor ivy_ant_wrap and this to use a single config object
+          rm_rf project.path_to(:reports, 'ivy')
+          project.ivy.cleancache
+        end
+        
+        task :cleanresultcache do
+          project.send(:info, "Deleting IVY result cache dir '#{project.ivy.result_cache_dir}'")
+          rm_rf project.ivy.result_cache_dir
+        end
+        
+        task :enableresultcache do
+          project.send(:info, "Creating IVY caching marker file '#{project.ivy.caching_marker}'")
+          touch project.ivy.caching_marker
+        end
+        
+        task :disableresultcache do
+          project.send(:info, "Deleting IVY aching marker file '#{project.ivy.caching_marker}'")
+          rm_f project.ivy.caching_marker
+        end
+        
+        task :resolve => "#{project.name}:ivy:configure" do
+          project.ivy.__resolve__
+        end
+        
+        task :report => "#{project.name}:ivy:resolve" do
+          project.ivy.report
+        end
+        
+        task :publish => "#{project.name}:ivy:resolve" do
+          project.ivy.__publish__
+        end
+      end
+    end
+  end
+end
+
+# Global targets that are not bound to a project
+namespace 'ivy' do
+  task :clean do
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:clean').invoke
+    end
+  end
+  
+  task :cleanresultcache do
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:cleanresultcache').invoke
+    end
+  end
+  
+  task :enableresultcache do
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:enableresultcache').invoke
+    end
+  end
+  
+  task :disableresultcache do
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:disableresultcache').invoke
+    end
+  end
+  
+  task :resolve do
+    info "Resolving all distinct ivy files"
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:resolve').invoke
+    end
+  end
+  
+  task :publish => :package do
+    info "Publishing all distinct ivy files"
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:publish').invoke
+    end
+  end
+end
+
+class Buildr::Project # :nodoc:
+  include IvyExtension
+end
+end
 end

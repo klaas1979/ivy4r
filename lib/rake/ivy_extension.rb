@@ -7,35 +7,50 @@ end
 module Rake
   module Ivy
     class IvyConfig
-
+      
       # The directory to load ivy jars and its dependencies from, leave __nil__ to use default
       attr_accessor :lib_dir
-
+      
       # The extension directory containing ivy settings, the local repository and cache
       attr_accessor :extension_dir
-
+      
       # Returns the resolve result
       attr_reader :resolved
       
       attr_reader :post_resolve_tasks
-
+      
       # Store the current rake application and initialize ivy ant wrapper
       def initialize(application)
         @application = application
         @extension_dir = File.join("#{@application.original_dir}", "#{ENV['IVY_EXT_DIR']}")
         @post_resolve_tasks = []
       end
-
+      
       # Returns the correct ant instance to use.
       def ivy4r
         unless @ivy4r
-          @ivy4r = ::Ivy4r.new
+          @ivy4r = ::Ivy4r.new do |i|
+            if caching_enabled?
+            end
+          end
           @ivy4r.lib_dir = lib_dir if lib_dir
           @ivy4r.project_dir = @extension_dir
         end
         @ivy4r
       end
-
+      
+      # Returns if ivy result caching is enabled by existence of the marker file.
+      def caching_enabled?
+        File.exists? 'use_ivy_caching'
+      end
+      
+      # Returns the dir to store ivy caching results in.
+      def result_cache_dir
+        dir = File.expand_path('ivycaching')
+        FileUtils.mkdir_p dir
+        dir
+      end
+      
       # Returns the artifacts for given configurations as array
       # this is a post resolve task.
       # the arguments are checked for the following:
@@ -59,17 +74,17 @@ module Rake
           pathid = "ivy.deps." + confs.join('.') + '.' + types.join('.')
           params = {:conf => confs.join(','), :pathid => pathid}
           params[:type] = types.join(',') unless types.nil? || types.size == 0
-
+          
           ivy4r.cachepath params
         end
       end
-
+      
       # Returns ivy info for configured ivy file.
       def info
         ivy4r.settings :id => 'ivy.info.settingsref'
         ivy4r.info :file => file, :settingsRef => 'ivy.info.settingsref'
       end
-
+      
       # Configures the ivy instance with additional properties and loading the settings file if it was provided
       def configure
         unless @configured
@@ -79,7 +94,7 @@ module Rake
           @configured = ivy4r.settings :file => settings if settings
         end
       end
-
+      
       # Resolves the configured file once.
       def __resolve__
         unless @resolved
@@ -88,12 +103,12 @@ module Rake
         end
         @resolved
       end
-
+      
       # Creates the standard ivy dependency report
       def report
         ivy4r.report :todir => report_dir
       end
-
+      
       # Publishs the project as defined in ivy file if it has not been published already
       def __publish__
         unless @published
@@ -105,19 +120,19 @@ module Rake
           @published = true
         end
       end
-
+      
       def home
         @ivy_home_dir ||= "#{@extension_dir}/ivy-home"
       end
-
+      
       def settings
         @settings ||= "#{@extension_dir}/ant-scripts/ivysettings.xml"
       end
-
+      
       def file
         @ivy_file ||= 'ivy.xml'
       end
-
+      
       # Sets the revision to use for the project, this is useful for development revisions that
       # have an appended timestamp or any other dynamic revisioning.
       #
@@ -142,7 +157,7 @@ module Rake
           self
         end
       end
-
+      
       # Sets the status to use for the project, this is useful for custom status handling
       # like integration, alpha, gold.
       #
@@ -167,7 +182,7 @@ module Rake
           self
         end
       end
-
+      
       # Sets the publish options to use for the project. The options are merged with the default
       # options including value set via #publish_from and overwrite all of them.
       #
@@ -194,7 +209,7 @@ module Rake
           end
         end
       end
-
+      
       # Sets the additional properties for the ivy process use a Hash with the properties to set.
       def properties(*properties)
         if properties.empty?
@@ -205,7 +220,7 @@ module Rake
           self
         end
       end
-
+      
       # Sets the local repository for ivy files
       def local_repository(*local_repository)
         if local_repository.empty?
@@ -216,7 +231,7 @@ module Rake
           self
         end
       end
-
+      
       # Sets the directory to publish artifacts from.
       def publish_from(*publish_dir)
         if publish_dir.empty?
@@ -227,7 +242,7 @@ module Rake
           self
         end
       end
-
+      
       # Sets the directory to create dependency reports in.
       def report_dir(*report_dir)
         if report_dir.empty?
@@ -239,46 +254,46 @@ module Rake
         end
       end
     end
-
-      # Adds given block as post resolve action that is executed directly after #resolve has been called.
-      # Yields this ivy config object into block.
-      # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>
-      def post_resolve(&block)
-        post_resolve_tasks << block if block
+    
+    # Adds given block as post resolve action that is executed directly after #resolve has been called.
+    # Yields this ivy config object into block.
+    # <tt>project.ivy.post_resolve { |ivy| p "all deps:" + ivy.deps('all').join(", ") }</tt>
+    def post_resolve(&block)
+      post_resolve_tasks << block if block
+    end
+    
+    # Filter artifacts for given configuration with provided filter values, this is a post resolve
+    # task like #deps.
+    # <tt>project.ivy.filter('server', 'client', :include => /b.*.jar/, :exclude => [/a\.jar/, /other.*\.jar/])</tt>
+    def filter(*confs)
+      filter = confs.last.kind_of?(Hash) ? confs.pop : {}
+      unless (filter.keys - (TYPES - [:conf])).empty?
+        raise ArgumentError, "Invalid filter use :include and/or :exclude only: given #{filter.keys.inspect}"
       end
-
-      # Filter artifacts for given configuration with provided filter values, this is a post resolve
-      # task like #deps.
-      # <tt>project.ivy.filter('server', 'client', :include => /b.*.jar/, :exclude => [/a\.jar/, /other.*\.jar/])</tt>
-      def filter(*confs)
-        filter = confs.last.kind_of?(Hash) ? confs.pop : {}
-        unless (filter.keys - (TYPES - [:conf])).empty?
-          raise ArgumentError, "Invalid filter use :include and/or :exclude only: given #{filter.keys.inspect}"
+      includes, excludes, types = filter[:include] || [], filter[:exclude] || [], filter[:type] || []
+      
+      artifacts = deps(confs.flatten, types.flatten)
+      if artifacts
+        artifacts = artifacts.find_all do |lib|
+          lib = File.basename(lib)
+          includes = includes.reject {|i| i.nil? || i.blank? }
+          should_include = includes.empty? || includes.any? {|include| include === lib }
+          should_include && !excludes.any? {|exclude| exclude === lib}
         end
-        includes, excludes, types = filter[:include] || [], filter[:exclude] || [], filter[:type] || []
-
-        artifacts = deps(confs.flatten, types.flatten)
-        if artifacts
-          artifacts = artifacts.find_all do |lib|
-            lib = File.basename(lib)
-            includes = includes.reject {|i| i.nil? || i.blank? }
-            should_include = includes.empty? || includes.any? {|include| include === lib }
-            should_include && !excludes.any? {|exclude| exclude === lib}
-          end
-        end
-
-        artifacts
       end
-
+      
+      artifacts
+    end
+    
     class Tasks < ::Rake::TaskLib
       def initialize(ivy = nil, &block)
         @ivy = ivy || Rake::Ivy::IvyConfig.new(Rake.application)
         yield @ivy if block_given?
         Rake.application.ivy = @ivy
-
+        
         define
       end
-
+      
       private
       def define
         namespace 'ivy' do
@@ -290,20 +305,38 @@ module Rake
           task :resolve => "ivy:configure" do
             Rake.application.ivy.__resolve__
           end
-
+          
           desc 'Publish the artifacts to ivy repository'
           task :publish => "ivy:resolve" do
             Rake.application.ivy.__publish__
           end
-
+          
           desc 'Creates a dependency report for the project'
           task :report => "ivy:resolve" do
             Rake.application.ivy.report
           end
-
+          
           desc 'Clean the local Ivy cache and the local ivy repository'
           task :clean do
             Rake.application.ivy.ivy4r.clean
+          end
+          
+          desc 'Clean the local Ivy result cache to force execution of ivy targets'
+          task :cleanresultcache do
+            puts "Deleting IVY result cache dir '#{Rake.application.ivy.result_cache_dir}'"
+            rm_rf Rake.application.ivy.result_cache_dir
+          end
+          
+          desc 'Enable the local Ivy result cache by creating the marker file'
+          task :enableresultcache do
+            puts "Creating IVY caching marker file '#{Rake.application.ivy.caching_marker}'"
+            touch Rake.application.ivy.caching_marker
+          end
+          
+          desc 'Disable the local Ivy result cache by removing the marker file'
+          task :disableresultcache do
+            puts "Deleting IVY aching marker file '#{Rake.application.ivy.caching_marker}'"
+            rm_f Rake.application.ivy.caching_marker
           end
         end
       end
