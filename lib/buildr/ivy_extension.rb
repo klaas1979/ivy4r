@@ -670,13 +670,13 @@ module IvyExtension
       task :clean
       
       desc 'Clean the local Ivy result cache to force execution of ivy targets'
-      task :cleanresultcache
+      task :clean_result_cache
       
       desc 'Enable the local Ivy result cache by creating the marker file'
-      task :enableresultcache
+      task :enable_result_cache
       
       desc 'Disable the local Ivy result cache by removing the marker file'
-      task :disableresultcache
+      task :disable_result_cache
     end
   end
   
