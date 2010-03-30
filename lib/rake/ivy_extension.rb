@@ -30,8 +30,7 @@ module Rake
       def ivy4r
         unless @ivy4r
           @ivy4r = ::Ivy4r.new do |i|
-            if caching_enabled?
-            end
+            i.cache_dir = result_cache_dir if caching_enabled?
           end
           @ivy4r.lib_dir = lib_dir if lib_dir
           @ivy4r.project_dir = @extension_dir
@@ -41,7 +40,12 @@ module Rake
       
       # Returns if ivy result caching is enabled by existence of the marker file.
       def caching_enabled?
-        File.exists? 'use_ivy_caching'
+        File.exists? caching_marker
+      end
+      
+      # Returns the use ivy result caching marker file
+      def caching_marker
+        File.expand_path 'use_ivy_caching'
       end
       
       # Returns the dir to store ivy caching results in.
@@ -322,20 +326,20 @@ module Rake
           end
           
           desc 'Clean the local Ivy result cache to force execution of ivy targets'
-          task :cleanresultcache do
+          task :clean_result_cache do
             puts "Deleting IVY result cache dir '#{Rake.application.ivy.result_cache_dir}'"
             rm_rf Rake.application.ivy.result_cache_dir
           end
           
           desc 'Enable the local Ivy result cache by creating the marker file'
-          task :enableresultcache do
+          task :enable_result_cache do
             puts "Creating IVY caching marker file '#{Rake.application.ivy.caching_marker}'"
             touch Rake.application.ivy.caching_marker
           end
           
           desc 'Disable the local Ivy result cache by removing the marker file'
-          task :disableresultcache do
-            puts "Deleting IVY aching marker file '#{Rake.application.ivy.caching_marker}'"
+          task :disable_result_cache do
+            puts "Deleting IVY caching marker file '#{Rake.application.ivy.caching_marker}'"
             rm_f Rake.application.ivy.caching_marker
           end
         end

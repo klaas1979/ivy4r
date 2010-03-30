@@ -1,3 +1,9 @@
+=== 0.10.1 / 2010-03-30
+  * Some fixes for the rake ivy result caching.
+  * Renamed the targets from ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache
+    into ivy:enable_result_cache, ivy:disable_result_cache and ivy:clean_result_cache for better
+    readability
+
 === 0.10.0 / 2010-03-30
 
 * Add caching support to ivy4r. Ivy4r has now an optional parameter to a caching directory where it
@@ -11,7 +17,6 @@
   * add a marker file to your project under the path project.path_to('use_ivy_caching') Note that this is
     a marker file only the existence of the file is checked not the content!! If the file exists caching
     will be used!
-  
 
 === 0.9.15 / 2010-03-20
 

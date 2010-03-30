@@ -50,11 +50,11 @@ and checkout the source of buildr/ivy_extension.rb and rake/ivy_extension.rb.
 * var
 
 === Caching of Ivy results:
-For Buildr the targets ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache have been added.
+For Buildr the targets ivy:enable_result_cache, ivy:disable_result_cache and ivy:clean_result_cache have been added.
 Additionally the result cache can be enabled via the build.yaml or the global buildr settings.yaml by setting
 the variable "ivy: caching.enabled: true".
 
-For Rake the targets ivy:enableresultcache, ivy:disableresultcache and ivy:cleanresultcache have been added as
+For Rake the targets ivy:enable_result_cache, ivy:disable_result_cache and ivy:clean_result_cache have been added as
 well. For Rake there is no other way to enable the caching beside this targets.
 
 == SYNOPSIS:

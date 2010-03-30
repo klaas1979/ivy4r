@@ -690,18 +690,18 @@ module IvyExtension
           project.ivy.cleancache
         end
         
-        task :cleanresultcache do
+        task :clean_result_cache do
           project.send(:info, "Deleting IVY result cache dir '#{project.ivy.result_cache_dir}'")
           rm_rf project.ivy.result_cache_dir
         end
         
-        task :enableresultcache do
+        task :enable_result_cache do
           project.send(:info, "Creating IVY caching marker file '#{project.ivy.caching_marker}'")
           touch project.ivy.caching_marker
         end
         
-        task :disableresultcache do
-          project.send(:info, "Deleting IVY aching marker file '#{project.ivy.caching_marker}'")
+        task :disable_result_cache do
+          project.send(:info, "Deleting IVY caching marker file '#{project.ivy.caching_marker}'")
           rm_f project.ivy.caching_marker
         end
         
@@ -729,21 +729,21 @@ namespace 'ivy' do
     end
   end
   
-  task :cleanresultcache do
+  task :clean_result_cache do
     Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-      project.task('ivy:cleanresultcache').invoke
+      project.task('ivy:clean_result_cache').invoke
     end
   end
   
-  task :enableresultcache do
+  task :enable_result_cache do
     Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-      project.task('ivy:enableresultcache').invoke
+      project.task('ivy:enable_result_cache').invoke
     end
   end
   
-  task :disableresultcache do
+  task :disable_result_cache do
     Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
-      project.task('ivy:disableresultcache').invoke
+      project.task('ivy:disable_result_cache').invoke
     end
   end
   
