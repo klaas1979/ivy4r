@@ -1,3 +1,6 @@
+=== 0.10.3 / 2010-03-30
+  * gem yank did not work so needed a new version :(
+
 === 0.10.2 / 2010-03-30
   * Fixed nil access exception for undefined user settings of type 'ivy'
 
