@@ -9,7 +9,7 @@ module Buildr
       end
       
       def user_setting(*keys)
-       find_setting(Buildr.settings.user['ivy'], *keys)
+        find_setting(Buildr.settings.user['ivy'], *keys)
       end
       
       private
@@ -26,6 +26,8 @@ module Buildr
       attr_accessor :extension_dir, :resolved
       
       attr_reader :post_resolve_task_list
+      
+      attr_reader :project
       
       # Hash of all artifacts to publish with mapping from artifact name to ivy publish name
       attr_reader :publish_mappings
@@ -630,21 +632,23 @@ module IvyExtension
     end
     
     def add_copy_tasks_for_publish(project)
-      if project.ivy.own_file?
-        Buildr.projects.each do |current|
-          current.packages.each do |pkg|
-            target_file = current.ivy.name[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
-            taskname = current.path_to(project.ivy.publish_from, target_file)
-            if taskname != pkg.name
-              project.file taskname => pkg.name do
-                verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
-                FileUtils.mkdir File.dirname(taskname) unless File.directory?(File.dirname(taskname))
-                FileUtils.cp pkg.name, taskname
-              end
-            end
-            project.task 'ivy:publish' => taskname
+      ivy_project = project
+      until ivy_project.ivy.own_file?
+        ivy_project = ivy_project.parent
+      end
+      
+      project.packages.each do |pkg|
+        target_file = project.ivy.name[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
+        taskname = project.path_to(project.ivy.publish_from, target_file)
+        if taskname != pkg.name
+          project.file taskname => pkg.name do
+            verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
+            FileUtils.mkdir_p File.dirname(taskname) unless File.directory?(File.dirname(taskname))
+            FileUtils.cp pkg.name, taskname
           end
         end
+        
+        ivy_project.task 'ivy:publish' => taskname
       end
     end
   end

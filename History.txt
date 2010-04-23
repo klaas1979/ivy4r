@@ -1,3 +1,7 @@
+=== 0.10.4 / 2010-03-30
+  * Changes to from version 0.9.14 working preventing a circular dependency error. Buildr.projects
+    is not used anymore but the ivy.publish task works as expected. See 0.9.14 for more details.
+
 === 0.10.3 / 2010-03-30
   * gem yank did not work so needed a new version :(
 
