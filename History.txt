@@ -1,4 +1,8 @@
-=== 0.10.4 / 2010-03-30
+=== 0.10.5 / 2010-04-26
+  * Fix a bug where artifacts for sub-projects have not been copied correctly to the publish directory
+    defined for ivy.
+
+=== 0.10.4 / 2010-04-22
   * Changes to from version 0.9.14 working preventing a circular dependency error. Buildr.projects
     is not used anymore but the ivy.publish task works as expected. See 0.9.14 for more details.
 

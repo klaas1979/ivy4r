@@ -636,10 +636,9 @@ module IvyExtension
       until ivy_project.ivy.own_file?
         ivy_project = ivy_project.parent
       end
-      
       project.packages.each do |pkg|
-        target_file = project.ivy.name[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
-        taskname = project.path_to(project.ivy.publish_from, target_file)
+        target_file = project.ivy.publish[pkg] || File.basename(pkg.name).gsub(/-#{project.version}/, '')
+        taskname = ivy_project.path_to(ivy_project.ivy.publish_from, target_file)
         if taskname != pkg.name
           project.file taskname => pkg.name do
             verbose "Ivy copying '#{pkg.name}' to '#{taskname}' for publishing"
