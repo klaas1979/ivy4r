@@ -137,13 +137,28 @@ module Ivy
       end
       
       def ant_properties
-        @ant.project.properties
+        p = @ant.project.properties
+        p.respond_to?(:map) ? p : java_map_to_ruby_hash(p)
       end
       
       def ant_references
-        @ant.project.references
+        r = @ant.project.references
+        r.respond_to?(:map) ? r : java_map_to_ruby_hash(r)
+      end
+      
+      private
+      def java_map_to_ruby_hash(java_map)
+        iterator = java_map.entry_set.iterator
+        result = {}
+        while iterator.has_next
+          entry = iterator.next
+          result[entry.key.to_string] = entry.value.to_string
+        end
+        result
       end
     end
+    
+    
     
     COMMA_SPLITTER = Proc.new {|value| value.to_s.split(',').map(&:strip)}
     
