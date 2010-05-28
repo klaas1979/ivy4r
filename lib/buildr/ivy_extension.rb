@@ -35,9 +35,9 @@ module Buildr
       # Store the current project and initialize ivy ant wrapper
       def initialize(project)
         @project = project
+        @post_resolve_task_list = []
         if project.parent.nil?
           @extension_dir = @project.base_dir
-          @post_resolve_task_list = []
         else
           @extension_dir = @project.parent.ivy.extension_dir
           @base_ivy = @project.parent.ivy unless own_file?
