@@ -48,7 +48,8 @@ module Buildr
       end
       
       def enabled?
-        @enabled ||= Ivy.setting('enabled') || true
+        setting = Ivy.setting('enabled')
+        @enabled ||= setting.nil? ? true : setting
       end
       
       def own_file?
