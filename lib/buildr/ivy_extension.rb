@@ -36,15 +36,12 @@ module Buildr
       def initialize(project)
         @project = project
         @post_resolve_task_list = []
-        if project.parent.nil?
-          @extension_dir = @project.base_dir
-        else
-          @extension_dir = @project.parent.ivy.extension_dir
-          @base_ivy = @project.parent.ivy unless own_file?
-        end
+        @extension_dir = project.parent.nil? ? @project.base_dir : @project.parent.ivy.extension_dir
+        @base_ivy = @project.parent.ivy unless own_file? 
         @target_config = Hash.new do
           |hash, key| hash[key] = {}
         end
+        
       end
       
       def enabled?
@@ -53,7 +50,7 @@ module Buildr
       end
       
       def own_file?
-        @own_file ||= File.exists?(@project.path_to(file))
+        @own_file ||= File.exists?(file)
       end
       
       # Returns the correct ivy4r instance to use, if project has its own ivy file uses the ivy file
@@ -218,8 +215,15 @@ module Buildr
         @settings ||= Ivy.setting('settings.file') || "#{@extension_dir}/ant-scripts/ivysettings.xml"
       end
       
-      def file
+      # The basic file name to use in project dir as ivy.xml file. Normally this should be __ivy.xml__
+      # If the file resides in a sub directory the relative path from project can be set with this method
+      def ivy_xml_filename
         @ivy_file ||= Ivy.setting('ivy.file') || 'ivy.xml'
+      end
+      
+      # Returns the absolute ivy file path to use
+      def file
+        @project.path_to(ivy_xml_filename)
       end
       
       # Sets the revision to use for the project, this is useful for development revisions that
