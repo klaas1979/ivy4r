@@ -195,8 +195,8 @@ module Buildr
           @base_ivy.__publish__
         else
           unless @published
-            options = {:status => status, :pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
-            options = publish_options * options
+            base_options = {:status => status, :pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
+            options = publish_options * base_options
             ivy4r.publish options
             @published = true
           end
@@ -289,7 +289,7 @@ module Buildr
           if @publish_options_calc
             @publish_options ||= @publish_options_calc.call(self)
           else
-            @publish_options ||= Ivy.setting('publish.options')
+            @publish_options ||= Ivy.setting('publish.options') || {}
           end
         else
           raise "Could not set 'publish_options' for '#{@project.name}' without own ivy file!" unless own_file?
