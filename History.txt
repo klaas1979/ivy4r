@@ -1,3 +1,8 @@
+=== 0.11.0 / 2010-05-31
+  * Fixed a few bugs and issues reported by Rhett Sutphin. See issues on github 3-6.
+  * Ivy4r should work with MRI and JRuby, previously only JRuby was supported.
+  * The multi ivy.xml file support should work now. 
+
 === 0.10.5 / 2010-04-26
   * Fix a bug where artifacts for sub-projects have not been copied correctly to the publish directory
     defined for ivy.

@@ -57,19 +57,41 @@ the variable "ivy: caching.enabled: true".
 For Rake the targets ivy:enable_result_cache, ivy:disable_result_cache and ivy:clean_result_cache have been added as
 well. For Rake there is no other way to enable the caching beside this targets.
 
+== Notes about usage and testing:
+A few information how this project is used and what parts are well tested and what parts are nearly never used.
+
+=== Buildr extension:
+The buildr extension is tested only on projects with a single ivy.xml, the multi ivy.xml file support was added
+but was never tested extensively!
+
+=== Rake extension:
+Note that the rake extension is only test in JRuby Rails projects to publish a java WAR file into the repository.
+It does not offer as many features as the buildr extension.
+
 == SYNOPSIS:
 
+ivy4r plain:
   To init a new Ivy4r instance set the ANT_HOME and the Ivy lib dir
     ivy4r = Ivy4r.new
     ivy4r.ant_home = 'PATH TO YOUR ANTHOME'
     ivy4r.lib_dir = 'PATH TO IVY LIB DIR'
   as an alternative to setting the ANT_HOME you can set an +Antwrap+ instance directly:
     ivy4r.ant = Buildr.ant('ivy')
+    
+buildr:
+  TODO add buildr example
+
+rake:
+  TODO add rake example
 
 == REQUIREMENTS:
 
+Plain ivy4r:
 * Installed Apache Ant, to call Ivy via Antwrap
 * Ivy and dependencies in a single directory. Dependencies depends on used features, see the ivy homepage for more information.
+* JRuby is well tested, MRI support has been added with version 0.11.0 so use it at your own risk.
+* Rake to use the rake extension
+* Buildr to use the buildr extension
 
 == INSTALL:
 
