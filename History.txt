@@ -1,3 +1,8 @@
+=== 0.11.1 / 2010-06-09
+  * Fixed a bug reported by Rhett Sutphin that prevented the use of MRI.
+  * Added mapping from java to ruby via RJB and source example from
+    Stanford Parser Ruby Wrapper by William Patrick McNeill.
+  
 === 0.11.0 / 2010-05-31
   * Fixed a few bugs and issues reported by Rhett Sutphin. See issues on github 3-6.
   * Ivy4r should work with MRI and JRuby, previously only JRuby was supported.

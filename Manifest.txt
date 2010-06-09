@@ -14,6 +14,7 @@ lib/ivy/configure.rb
 lib/ivy/findrevision.rb
 lib/ivy/info.rb
 lib/ivy/java/all_version_matcher.rb
+lib/ivy/java/java_object_wrapper.rb
 lib/ivy/listmodules.rb
 lib/ivy/makepom.rb
 lib/ivy/publish.rb

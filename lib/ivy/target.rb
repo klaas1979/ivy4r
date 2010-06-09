@@ -5,6 +5,8 @@ require 'facets/hash/update_values'
 
 require 'digest/md5'
 
+require 'ivy/java/java_object_wrapper'
+
 module Ivy
   
   # Base class with general logic to call a Ivy ant target
@@ -137,24 +139,11 @@ module Ivy
       end
       
       def ant_properties
-        p = @ant.project.properties
-        p.respond_to?(:map) ? p : java_map_to_ruby_hash(p)
+        Rjb::JavaObjectWrapper.wrap_java_object @ant.project.properties
       end
       
       def ant_references
-        r = @ant.project.references
-        r.respond_to?(:map) ? r : java_map_to_ruby_hash(r)
-      end
-      
-      private
-      def java_map_to_ruby_hash(java_map)
-        iterator = java_map.entry_set.iterator
-        result = {}
-        while iterator.has_next
-          entry = iterator.next
-          result[entry.key.to_string] = entry.value.to_string
-        end
-        result
+        Rjb::JavaObjectWrapper.wrap_java_object @ant.project.references
       end
     end
     
