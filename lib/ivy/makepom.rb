@@ -6,8 +6,15 @@ module Ivy
       [
         Parameter.new(:ivyfile, true),
         Parameter.new(:pomfile, true),
-        Parameter.new(:nested, true),
-        Parameter.new(:settingsRef, false)
+        Parameter.new(:templatefile, false),
+        Parameter.new(:artifactName, false),
+        Parameter.new(:artifactPackaging, false),
+        Parameter.new(:conf, false),
+        Parameter.new(:settingsRef, false),
+        Parameter.new(:printIvyInfo, false),
+        Parameter.new(:headerFile, false),
+        Parameter.new(:description, false),
+        Parameter.new(:nested, false)
       ]
     end
 

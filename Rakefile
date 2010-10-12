@@ -6,11 +6,10 @@ require 'hoe'
 require 'ivy4r'
   
 hoe = Hoe.spec 'ivy4r' do |p|
-  self.rubyforge_name = 'hamburgrb'
-  p.developer('Klaas Prause', 'klaas.prause@googlemail.com')
+  p.developer('Klaas Reineke', 'klaas.reineke@googlemail.com')
   p.remote_rdoc_dir = 'ivy4r'
   p.extra_deps << ['Antwrap', '>=0.7.0']
-  p.extra_deps << ['ivy4r-jars', '>=1.0.0']
+  p.extra_deps << ['ivy4r-jars', '>=1.2.0']
   p.extra_deps << ['facets', '>=2.5.2']
   #p.extra_deps << ['thoughtbot-shoulda', '>=2.5.2']
   #p.extra_deps << ['rr', '>=0.10.0']

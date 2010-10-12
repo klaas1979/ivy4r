@@ -187,6 +187,12 @@ module Buildr
       def cleancache
         ivy4r.cleancache
       end
+
+      # Simple call to makepom with projects ivy.xml as input.
+      # The filename in target folder can be changed with the optional filename parameter
+      def makepom(filename = project.name.gsub(':', '_', + '.pom')
+        ivy4r.makepom :ivyfile => file, :pomfile => project.path_to(:target, filename)
+      end
       
       
       # Publishs the project as defined in ivy file if it has not been published already
@@ -676,6 +682,9 @@ module IvyExtension
       
       desc 'Clean the local Ivy cache and the local ivy repository'
       task :clean
+
+      desc 'Creates default Maven POM for project from ivy.xml'
+      task :makepom
       
       desc 'Clean the local Ivy result cache to force execution of ivy targets'
       task :clean_result_cache
@@ -732,6 +741,10 @@ module IvyExtension
         task :publish => "#{project.name}:ivy:resolve" do
           project.ivy.__publish__
         end
+
+        task :makepom => "#{project.name}:ivy:resolve" do
+          project.ivy.makepom
+        end
       end
     end
   end
@@ -774,6 +787,13 @@ namespace 'ivy' do
     info "Publishing all distinct ivy files"
     Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
       project.task('ivy:publish').invoke
+    end
+  end
+
+  task :makepom => :resolve do
+    info "Create Maven POMs for all projects with distinct ivy files"
+    Buildr.projects.find_all{ |p| p.ivy.own_file? }.each do |project|
+      project.task('ivy:makepom').invoke
     end
   end
 end
