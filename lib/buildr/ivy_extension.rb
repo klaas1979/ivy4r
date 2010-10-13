@@ -190,7 +190,7 @@ module Buildr
 
       # Simple call to makepom with projects ivy.xml as input.
       # The filename in target folder can be changed with the optional filename parameter
-      def makepom(filename = project.name.gsub(':', '_', + '.pom')
+      def makepom(filename = 'pom.xml')
         ivy4r.makepom :ivyfile => file, :pomfile => project.path_to(:target, filename)
       end
       

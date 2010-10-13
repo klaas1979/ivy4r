@@ -1,3 +1,8 @@
+=== 0.12.1 / 2010-10-13
+  * Use [project target dir]/pom.xml as default name for generated POM files.
+  * Works with MRI and JRuby
+  * remove unused and old import of 'facets/blank' that does not exists in new facets gem anymore
+
 === 0.12.0 / 2010-10-12
   * Use new version of ivy4r-jars. The new version is based on the last release of Ivy 2.2.0 with better support for POMs and a few bugfixes.
   * Added global and per project Buildr task ivy:makepom. It generates a simple Maven POM file in target folder of project with the same name as project and pom file extension. Right now no additional features of the makepom target are supported by using this task. If you need to use the nested elements use the the makepom target directly. I.e.: ivy.ivy4r.makepom :ivyfile => 'pathtofile' [, ...] [, :nested => [:mapping => [:conf => 'conf', :scope => 'scope']], [...] ] I am planning to provide a makepom task with descent support for the makepom target after figuring out a nice syntax for it.
