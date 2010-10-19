@@ -1,3 +1,7 @@
+=== 0.12.2 / 2010-10-19
+  * Removed use of "facets/blank" using now "empty?" did not find the use when removing the require
+  * Add fix for error while merging additional infos into manifest files. Some jars, ears or wars do not have a manifest no just do nothing.
+
 === 0.12.1 / 2010-10-13
   * Use [project target dir]/pom.xml as default name for generated POM files.
   * Works with MRI and JRuby

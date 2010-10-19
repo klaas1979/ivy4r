@@ -114,7 +114,7 @@ module Buildr
         end
         
         [confs, types].each do |t|
-          t.reject! {|c| c.nil? || c.blank? }
+          t.reject! {|c| c.nil? || c.empty? }
         end
         
         unless confs.empty?
@@ -413,7 +413,7 @@ module Buildr
         if artifacts
           artifacts = artifacts.find_all do |lib|
             lib = File.basename(lib)
-            includes = includes.reject {|i| i.nil? || i.blank? }
+            includes = includes.reject {|i| i.nil? || i.empty? }
             should_include = includes.empty? || includes.any? {|include| include === lib }
             should_include && !excludes.any? {|exclude| exclude === lib}
           end
@@ -603,8 +603,12 @@ module IvyExtension
       pkgs.each do |pkg|
         name = "#{pkg.name}manifest"
         task = project.task name => project.ivy.file_project.task('ivy:resolve') do
-          pkg.with :manifest => pkg.manifest.merge(project.manifest.merge(project.ivy.manifest))
-          info "Adding manifest entries to package '#{pkg.name}'"
+          if pkg.manifest # source jars have no manifest, only add to existing manifest files
+            pkg.with :manifest => pkg.manifest.merge(project.manifest.merge(project.ivy.manifest))
+            info "Adding manifest entries to package '#{pkg.name}'"
+          else
+            info "Could not merge info to package '#{pkg.to_s}' it has no manifest!"
+          end
         end
         project.task :build => task
       end
