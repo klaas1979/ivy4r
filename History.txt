@@ -1,3 +1,6 @@
+=== 0.12.4 / 2010-10-19
+  * Fixed next problem regarding removal of "facets/blank": must be able to handle Regexps and Strings so needed to check both for beeing blank
+
 === 0.12.3 / 2010-10-19
   * Missed to fix the rake extension: Removed use of "facets/blank" using now "empty?" did not find the use when removing the require
 
