@@ -71,7 +71,7 @@ module Rake
         end
         
         [confs, types].each do |t|
-          t.reject! {|c| c.nil? || c.blank? }
+          t.reject! {|c| c.nil? || c.empty? }
         end
         
         unless confs.empty?
@@ -280,7 +280,7 @@ module Rake
       if artifacts
         artifacts = artifacts.find_all do |lib|
           lib = File.basename(lib)
-          includes = includes.reject {|i| i.nil? || i.blank? }
+          includes = includes.reject {|i| i.nil? || i.empty? }
           should_include = includes.empty? || includes.any? {|include| include === lib }
           should_include && !excludes.any? {|exclude| exclude === lib}
         end
