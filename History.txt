@@ -1,3 +1,6 @@
+=== 0.12.5 / 2010-10-20
+  * Fixed typo preventing compile to work properly
+
 === 0.12.4 / 2010-10-19
   * Fixed next problem regarding removal of "facets/blank": must be able to handle Regexps and Strings so needed to check both for beeing blank
 
