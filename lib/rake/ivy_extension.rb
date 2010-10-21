@@ -280,7 +280,7 @@ module Rake
       if artifacts
         artifacts = artifacts.find_all do |lib|
           lib = File.basename(lib)
-          includes = includes.reject {|i| i.nil? || || (i.respond_to?(:empty?) && i.empty?) || (i.respond_to?(:source) && i.source.empty?) }
+          includes = includes.reject {|i| i.nil? || (i.respond_to?(:empty?) && i.empty?) || (i.respond_to?(:source) && i.source.empty?) }
           should_include = includes.empty? || includes.any? {|include| include === lib }
           should_include && !excludes.any? {|exclude| exclude === lib}
         end
