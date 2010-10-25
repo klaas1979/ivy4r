@@ -1,5 +1,7 @@
 $:.unshift File.join(File.dirname(__FILE__),'..','..','lib')
 
+JRuby.objectspace = true if RUBY_PLATFORM == 'java'
+
 require 'test/unit'
 require 'rr'
 require 'ivy/target'
@@ -12,7 +14,7 @@ module Ivy
   class TargetTest < Test::Unit::TestCase
 
     def setup
-      Ivy::Target.send("public", :call_nested)
+      Ivy::Target.send(:public, :call_nested) # make tested method public
       @ant = Object.new
       @target = Ivy::Target.new(@ant)
     end

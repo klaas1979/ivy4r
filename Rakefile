@@ -1,38 +1,40 @@
-# -*- ruby -*-
-$:.unshift File.join(File.dirname(__FILE__), 'lib')
+require "rubygems"
+require "bundler"
+require "rake"
+require "rake/testtask"
 
-require 'rubygems'
-require 'hoe'
-require 'ivy4r'
-  
-hoe = Hoe.spec 'ivy4r' do |p|
-  p.developer('Klaas Reineke', 'klaas.reineke@googlemail.com')
-  p.remote_rdoc_dir = 'ivy4r'
-  p.extra_deps << ['Antwrap', '>=0.7.0']
-  p.extra_deps << ['ivy4r-jars', '>=1.2.0']
-  p.extra_deps << ['facets', '>=2.5.2']
-  #p.extra_deps << ['thoughtbot-shoulda', '>=2.5.2']
-  #p.extra_deps << ['rr', '>=0.10.0']
-  File.open(File.join(File.dirname(__FILE__), 'VERSION'), 'w') do |file|
-    file.puts Ivy4r::VERSION
-  end
+$:.unshift File.join(File.dirname(__FILE__),'lib')
+require "ivy4r/version"
+
+require "rspec/core/rake_task"
+RSpec::Core::RakeTask.new :spec
+task :default => :spec
+
+desc "Functional test execution not that this only works under MRI and not with JRuby 1.5.1"
+Rake::TestTask.new :test_functional do |t|
+  Bundler.require :development
+  t.test_files = FileList['test-functional/**/test*.rb']
+  t.verbose = true
+end
+
+task :build do
+  system "gem build ivy4r.gemspec"
+end
+ 
+task :release => :build do
+  system "gem push ivy4r-#{Ivy4r::VERSION}"
 end
 
 begin
-  require 'jeweler'
-  Jeweler::Tasks.new(hoe.spec)
+  require "hanna/rdoctask"
+
+  Rake::RDocTask.new do |t|
+    t.title = "Ivy4r - Ruby interface to Apache Ivy dependency management with integration for Buildr and Rake"
+    t.rdoc_dir = "doc"
+    t.rdoc_files.include("**/*.rdoc").include("lib/**/*.rb")
+    t.options << "--line-numbers"
+    t.options << "--webcvs=http://github.com/klaas1979/ivy4r/tree/master/"
+  end
 rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+  puts "'gem install hanna' to generate documentation"
 end
-
-task :gemspec => :test
-
-desc "Tests, releases and publishs docs to rubyforge"
-task :release_and_publish => [:test, :release, :publish_docs]
-
-desc "Build gem and publish to gem server"
-task :build_and_publish => :build do
-  exec "gem push_to_blau"
-end
-
-# vim: syntax=ruby
