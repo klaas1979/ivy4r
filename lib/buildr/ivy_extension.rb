@@ -172,7 +172,7 @@ module Buildr
         else
           {
             'organisation' => @resolved['ivy.organisation'],
-            'module' => @resolved['ivy.organisation'],
+            'module' => @resolved['ivy.module'],
             'revision' => revision
           }
         end
