@@ -23,7 +23,7 @@ task :build => :test_functional do
 end
  
 task :release => :build do
-  system "gem push ivy4r-#{Ivy4r::VERSION}"
+  system "gem push ivy4r-#{Ivy4r::VERSION}.gem"
 end
 
 # Todo
