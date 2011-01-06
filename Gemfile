@@ -1,5 +1,5 @@
 source :rubygems
 
-# All in ivy4r.gemspec
+# All in gemspec
 gemspec
 
