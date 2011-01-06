@@ -1,3 +1,7 @@
+=== 0.12.7 / 2011-01-06
+  * Fixed error in manifest: module was organisation name.
+  * info task uses the same ivy config as the other ivy tasks
+
 === 0.12.6 / 2010-10-20
   * Fixed copy & paste error
 

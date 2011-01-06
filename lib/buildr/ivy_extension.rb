@@ -131,10 +131,8 @@ module Buildr
         if @base_ivy
           @base_ivy.info
         else
-          ivy4r.settings :id => 'ivy.info.settingsref'
-          result = ivy4r.info :file => file, :settingsRef => 'ivy.info.settingsref'
-          @ivy4r = nil
-          result
+          configure
+          ivy4r.info :file => file
         end
       end
       
