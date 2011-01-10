@@ -1,3 +1,7 @@
+=== 0.12.8 / 2011-01-??
+  * Converted all tests to RSpec2 specs and grouped them according to functional and normal spec
+  * Started adding more specs to get a descent test coverage
+
 === 0.12.7 / 2011-01-06
   * Fixed error in manifest: module was organisation name.
   * info task uses the same ivy config as the other ivy tasks

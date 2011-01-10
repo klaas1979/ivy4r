@@ -23,7 +23,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'Antwrap', '>= 0.7.0'
   s.add_dependency 'ivy4r-jars', '>= 1.2.0'
 
-  s.add_development_dependency 'rspec', '>= 2.0.0'
-  s.add_development_dependency 'mocha', '>= 0.9.8'
-  s.add_development_dependency 'rr' # for old functional tests
+  s.add_development_dependency 'autotest', '>=4.4.6'
+  s.add_development_dependency 'ZenTest', '>=4.4.2'
+  s.add_development_dependency 'rspec', '>= 2.3.0'
+  s.add_development_dependency 'rr', '>=1.0.2'
 end

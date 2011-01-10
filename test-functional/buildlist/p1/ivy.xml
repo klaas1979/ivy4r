@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="http://www.ivyrep.org/ivy-doc.xsl"?>
-<ivy-module version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://incubator.apache.org/ivy/schemas/ivy.xsd">
-
-    <info organisation="blau" module="p1" revision="1.0" />
-</ivy-module>
