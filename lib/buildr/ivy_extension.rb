@@ -268,7 +268,7 @@ module Buildr
           if @status_calc
             @status ||= @status_calc.call(self)
           else
-            @status ||= Ivy.setting('status') || 'integration'
+            @status
           end
         elsif status.empty? && block.nil?
           raise "status value invalid #{status.join(', ')}" unless status.size == 1
