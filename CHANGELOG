@@ -1,6 +1,7 @@
-=== 0.12.8 / 2011-01-??
+=== 0.12.8 / 2011-01-14
   * Converted all tests to RSpec2 specs and grouped them according to functional and normal spec
   * Started adding more specs to get a descent test coverage
+  * Fixed regression error on Ivy status for buildr, now the proc is used if given
 
 === 0.12.7 / 2011-01-06
   * Fixed error in manifest: module was organisation name.
