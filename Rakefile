@@ -2,6 +2,7 @@ require "rubygems"
 require "bundler"
 require "rake"
 require "rake/testtask"
+Bundler.require(:default, :development)
 
 $:.unshift File.join(File.dirname(__FILE__),'lib')
 require "ivy4r/version"
@@ -13,7 +14,6 @@ RSpec::Core::RakeTask.new :spec
 
 desc "Functional test execution not that this only works under MRI and not with JRuby 1.5.1"
 Rake::TestTask.new :test_functional do |t|
-  Bundler.require :development
   t.test_files = FileList['test-functional/**/test*.rb']
   t.verbose = true
 end
