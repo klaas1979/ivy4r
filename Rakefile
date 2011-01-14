@@ -12,12 +12,6 @@ require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new :spec
 #task :default => :spec
 
-desc "Functional test execution not that this only works under MRI and not with JRuby 1.5.1"
-Rake::TestTask.new :test_functional do |t|
-  t.test_files = FileList['test-functional/**/test*.rb']
-  t.verbose = true
-end
-
 task :build => :test_functional do
   system "gem build ivy4r.gemspec"
 end
