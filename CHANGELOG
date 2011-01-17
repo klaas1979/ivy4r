@@ -1,3 +1,6 @@
+=== 0.12.9 / 2011-01-17
+  * Added missing 'install' target, use it as defined in Ivy documentation
+
 === 0.12.8 / 2011-01-14
   * Converted all tests to RSpec2 specs and grouped them according to functional and normal spec
   * Started adding more specs to get a descent test coverage
