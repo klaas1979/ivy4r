@@ -149,6 +149,7 @@ class Ivy4r
     Ivy::Findrevision.new(ant, cache_dir).execute(*params)
   end
 
+  # Calls the __install__ ivy target with given parameters always returns nil
   def install(*params)
     Ivy::Install.new(ant, cache_dir).execute(*params)
   end

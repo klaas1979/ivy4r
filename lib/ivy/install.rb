@@ -19,14 +19,16 @@ module Ivy
         Parameter.new(:haltonfailure, false)
       ]
     end
+    
+    def create_return_values
+      nil
+    end
 
     protected
+    
     def execute_ivy
       call_nested :ivy_install => params
     end
 
-    def result_property_values
-      nil
-    end
   end
 end
