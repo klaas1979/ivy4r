@@ -20,14 +20,13 @@ module Ivy
       ]
     end
     
-    def create_return_values
-      nil
-    end
-
     protected
-    
     def execute_ivy
       call_nested :ivy_install => params
+    end
+
+    def create_return_values
+      nil
     end
 
   end
