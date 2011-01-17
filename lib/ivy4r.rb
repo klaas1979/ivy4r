@@ -148,6 +148,10 @@ class Ivy4r
   def findrevision(*params)
     Ivy::Findrevision.new(ant, cache_dir).execute(*params)
   end
+
+  def install(*params)
+    Ivy::Install.new(ant, cache_dir).execute(*params)
+  end
   
   # Calls the __artifactproperty__ ivy target with given parameters and returns
   # map with all defined properties
