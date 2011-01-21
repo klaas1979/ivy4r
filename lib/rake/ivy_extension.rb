@@ -92,8 +92,8 @@ module Rake
       # Configures the ivy instance with additional properties and loading the settings file if it was provided
       def configure
         unless @configured
-          ivy4r.property['ivy.status'] = status
-          ivy4r.property['ivy.home'] = home
+          ivy4r.property['ivy.status'] = status if status
+          ivy4r.property['ivy.home'] = home if home
           properties.each {|key, value| ivy4r.property[key.to_s] = value }
           @configured = ivy4r.settings :file => settings if settings
         end
@@ -126,11 +126,11 @@ module Rake
       end
       
       def home
-        @ivy_home_dir ||= "#{@extension_dir}/ivy-home"
+        @ivy_home_dir
       end
       
       def settings
-        @settings ||= "#{@extension_dir}/ant-scripts/ivysettings.xml"
+        @settings ||= "#{@extension_dir}/ivysettings.xml"
       end
       
       def file

@@ -1,3 +1,7 @@
+=== 0.12.10 / 2011-01-21
+  * Default folder for settings file changed to '@extension_dir/iyvsettings.xml'
+  * Default ivy.home property is left empty to use default '${user.home}/.ivy2'
+
 === 0.12.9 / 2011-01-17
   * Added missing 'install' target, use it as defined in Ivy documentation
 

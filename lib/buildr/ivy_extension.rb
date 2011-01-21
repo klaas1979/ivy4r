@@ -142,8 +142,8 @@ module Buildr
           @base_ivy.configure
         else
           unless @configured
-            ivy4r.property['ivy.status'] = status
-            ivy4r.property['ivy.home'] = home
+            ivy4r.property['ivy.status'] = status if status
+            ivy4r.property['ivy.home'] = home if home
             properties.each {|key, value| ivy4r.property[key.to_s] = value }
             @configured = ivy4r.settings :file => settings if settings
           end
@@ -208,7 +208,7 @@ module Buildr
       end
       
       def home
-        @ivy_home_dir ||= Ivy.setting('home.dir') || "#{@extension_dir}/ivy-home"
+        @ivy_home_dir ||= Ivy.setting('home.dir')
       end
       
       def lib_dir
@@ -216,7 +216,7 @@ module Buildr
       end
       
       def settings
-        @settings ||= Ivy.setting('settings.file') || "#{@extension_dir}/ant-scripts/ivysettings.xml"
+        @settings ||= Ivy.setting('settings.file') || "#{@extension_dir}/ivysettings.xml"
       end
       
       # The basic file name to use in project dir as ivy.xml file. Normally this should be __ivy.xml__
