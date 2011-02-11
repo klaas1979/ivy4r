@@ -1,7 +1,3 @@
-require 'facets/to_hash'
-require 'facets/hash/op'
-require 'facets/hash/update_values'
-
 require 'digest/md5'
 
 require 'ivy/java/java_object_wrapper'
@@ -114,15 +110,17 @@ module Ivy
       result = ant_properties.map do |p|
         rp = result_property_values.find { |rp| rp.matcher === p[0] }
         rp ? [p[0], rp.parse(p[1])].flatten : nil
-        end.compact.to_h(:multi)
-        result.update_values do |v|
-          case v.size
-            when 0
-            nil
-            when 1
-            v[0]
-          else
-            v
+        end.compact.inject({}) do |h,v|
+          k = v.shift
+          h[k] ||= []
+          h[k].concat(v)
+          h
+        end
+        result.each do |k,v|
+          result[k] = case v.size
+          when 0  then nil
+          when 1  then v[0]
+          else v
           end
         end
         
