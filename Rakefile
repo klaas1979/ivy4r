@@ -5,12 +5,12 @@ require "rake/testtask"
 Bundler.require(:default, :development)
 
 $:.unshift File.join(File.dirname(__FILE__),'lib')
-require "ivy4r/version"
+require "ivy4r"
 
 # Todo
 require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new :spec
-#task :default => :spec
+RSpec::Core::RakeTask.new(:spec){|spec| spec.pattern='spec*/**/*spec*.rb'}
+task :default => :spec
 
 task :build do
   system "gem build ivy4r.gemspec"

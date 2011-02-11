@@ -1,3 +1,4 @@
+require 'ivy4r/version'
 require 'ivy4r_jars'
 require 'antwrap'
 require 'ivy/targets'
