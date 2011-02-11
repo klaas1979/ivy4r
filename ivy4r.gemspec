@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'facets', '>= 2.9.0'
   s.add_dependency 'Antwrap', '>= 0.7.0'
+  s.add_dependency 'hoe', '< 2.9.0' # Antwrap requires hoe, problem with jruby and rubygems 1.4.x
   s.add_dependency 'ivy4r-jars', '>= 1.2.0'
 
   s.add_development_dependency 'autotest', '>=4.4.6'
