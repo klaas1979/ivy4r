@@ -199,7 +199,8 @@ module Buildr
           @base_ivy.__publish__
         else
           unless @published
-            base_options = {:status => status, :pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
+            base_options = {:pubrevision => revision, :artifactspattern => "#{publish_from}/[artifact].[ext]"}
+            base_options[:status] = status if status
             options = publish_options * base_options
             ivy4r.publish options
             @published = true
