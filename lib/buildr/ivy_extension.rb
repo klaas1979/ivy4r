@@ -700,7 +700,7 @@ For more configuration options see IvyConfig.
         end
       end
   
-      after_define do |project|
+      after_define :ivy do |project|
         if project.ivy.enabled?
           IvyExtension.add_ivy_deps_to_java_tasks(project)
           IvyExtension.add_manifest_to_distributeables(project)
