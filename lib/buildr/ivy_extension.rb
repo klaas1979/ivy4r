@@ -564,7 +564,7 @@ For more configuration options see IvyConfig.
           project.task :javadoc => "#{project.name}:javadocdeps"
       
           [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
-            task.prerequisites.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
+            [task, task.prerequisites].flatten.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
           end
         end
     
