@@ -554,14 +554,14 @@ For more configuration options see IvyConfig.
           end
           project.task "test:compile" => "#{project.name}:testdeps"
       
-          project.task :javadocdeps => resolve_target do
+          project.task :docdeps => resolve_target do
             confs = [project.ivy.test_conf, project.ivy.compile_conf].flatten.uniq
             if deps = project.ivy.deps(confs)
-              project.javadoc.with deps
-              info "Ivy adding javadoc dependencies '#{confs.join(', ')}' to project '#{project.name}'"
+              project.doc.with deps
+              info "Ivy adding doc dependencies '#{confs.join(', ')}' to project '#{project.name}'"
             end
           end
-          project.task :javadoc => "#{project.name}:javadocdeps"
+          project.doc.enhance( ["#{project.name}:docdeps"] )
       
           [project.task(:eclipse), project.task(:idea), project.task(:idea7x)].each do |task|
             [task, task.prerequisites].flatten.each{|p| p.enhance ["#{project.name}:compiledeps", "#{project.name}:testdeps"]}
