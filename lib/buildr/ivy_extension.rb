@@ -636,8 +636,12 @@ For more configuration options see IvyConfig.
               excludes = project.ivy.package_exclude
               types = project.ivy.package_type
               confs = project.ivy.package_conf
+              libdir = ''
+              if pkg.dirs.key? :lib
+                libdir =  pkg.dirs[:lib]
+              end
               if deps = project.ivy.filter(confs, :type => types, :include => includes, :exclude => excludes)
-                pkg.add deps, :type => :lib, :path => ''
+                pkg.add deps, :type => :lib, :path => libdir
                 info "Adding production libs from conf '#{confs.join(', ')}' to EAR '#{pkg.name}' in project '#{project.name}'"
               end
             end
