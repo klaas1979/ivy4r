@@ -1,6 +1,6 @@
 = ivy4r
 
-* http://github.com/klaas1979/ivy4r/tree/master
+* http://github.com/pepijnve/ivy4r/tree/master
 
 == DESCRIPTION:
 

@@ -29,7 +29,7 @@ begin
     t.rdoc_dir = "doc"
     t.rdoc_files.include("**/*.rdoc").include("lib/**/*.rb")
     t.options << "--line-numbers"
-    t.options << "--webcvs=http://github.com/klaas1979/ivy4r/tree/master/"
+    t.options << "--webcvs=http://github.com/pepijnve/ivy4r/tree/master/"
   end
 rescue LoadError
   puts "'gem install hanna' to generate documentation"

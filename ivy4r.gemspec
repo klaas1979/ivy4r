@@ -3,12 +3,12 @@ $:.push File.expand_path("../lib", __FILE__)
 require "ivy4r/version"
 
 Gem::Specification.new do |s|
-  s.name        = "ivy4r"
+  s.name        = "pepijnve-ivy4r"
   s.version     = Ivy4r::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Klaas Reineke"]
+  s.authors     = ["Klaas Reineke", "Pepijn Van Eeckhoudt"]
   s.email       = ["klaas.reineke@googlemail.com"]
-  s.homepage    = "http://github.com/klaas1979/ivy4r"
+  s.homepage    = "http://github.com/pepijnve/ivy4r"
   s.summary     = %q{Ivy4r Apache Ivy dependency management for Ruby}
   s.description = %q{Ivy4r is a Ruby interface for Apache Ivy dependency management library. Offers support for using Ivy with Buildr and Rake.}
 
