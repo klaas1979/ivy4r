@@ -19,11 +19,12 @@ Gem::Specification.new do |s|
   #s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'Antwrap', '>= 0.7.0'
-  s.add_dependency 'ivy4r-jars', '>= 1.2.0'
+  s.add_dependency 'atoulme-Antwrap', '~> 0.7.4'
+  s.add_dependency 'ivy4r-jars', '~> 1.2.0'
 
-  s.add_development_dependency 'autotest', '>=4.4.6'
-  s.add_development_dependency 'ZenTest', '>=4.4.2'
-  s.add_development_dependency 'rspec', '>= 2.4.0'
-  s.add_development_dependency 'rr', '>=1.0.2'
+  s.add_development_dependency 'rake', '~> 10.3.2'
+  s.add_development_dependency 'autotest', '~> 4.4.6'
+  s.add_development_dependency 'ZenTest', '~> 4.4.2'
+  s.add_development_dependency 'rspec', '~> 2.4.0'
+  s.add_development_dependency 'rr', '~> 1.0.2'
 end
