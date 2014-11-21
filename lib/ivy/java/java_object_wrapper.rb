@@ -93,7 +93,7 @@ module Rjb
       def find_converter(object)
         classnames_to_check(object).each do |name|
           wrapper = wrapper_name(name)
-          if respond_to? wrapper
+          if respond_to?(wrapper, true)
             return send(wrapper, object)
           end
         end
