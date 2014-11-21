@@ -1,3 +1,7 @@
+=== 0.12.11 / 2014-11-21
+  * Fix compatibility with MRI Ruby 2.x+
+  * Buildr: Use doc instead of javadoc to silence deprecation warnings
+
 === 0.12.10 / 2011-01-21
   * Default folder for settings file changed to '@extension_dir/iyvsettings.xml'
   * Default ivy.home property is left empty to use default '${user.home}/.ivy2'
