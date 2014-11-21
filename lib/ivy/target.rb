@@ -89,7 +89,7 @@ module Ivy
             if params.member? :nested
               p = params.dup
               nest = p.delete(:nested)
-              @ant.send(method, p, &lambda {call_nested(nest)})
+              @ant.send(method, p, &lambda { |*_| call_nested(nest)})
             else
               @ant.send(method, params)
             end
